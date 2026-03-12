@@ -14,6 +14,9 @@ var _grainExpandedRows = {};
 // Cache for elevator hedges (keyed by contractId)
 var _grainContractHedges = {};
 
+// Cache for contract rolls (keyed by contractId)
+var _grainContractRolls = {};
+
 // ---- Main page renderer ----
 
 function renderGrainPage() {
@@ -206,6 +209,8 @@ function _grainRenderTable(contracts) {
       '<td><span class="grain-status ' + statusClass + '">' + esc(c.status) + '</span></td>' +
       '<td class="grain-actions" onclick="event.stopPropagation()">' +
         '<button class="btn btn-secondary btn-sm" onclick="grainOpenContractModal(\'' + escapeAttr(id) + '\')">Edit</button> ' +
+        (c.status === 'Open' && (c.contractType === 'HTA' || c.contractType === 'Basis') ?
+          '<button class="btn btn-secondary btn-sm" onclick="grainOpenRollModal(\'' + escapeAttr(id) + '\')">Roll</button> ' : '') +
         '<button class="btn btn-danger btn-sm" onclick="grainDeleteContract(\'' + escapeAttr(id) + '\')">Delete</button>' +
       '</td>' +
     '</tr>';
@@ -242,6 +247,15 @@ function _grainRenderDetailPanel(c) {
     detailHtml = '<div class="grain-detail-inner"><span style="color:var(--text3)">No additional details</span></div>';
   } else {
     detailHtml = '<div class="grain-detail-inner">' + parts.join('<span class="grain-detail-sep">&middot;</span>') + '</div>';
+  }
+
+  // Roll history section (show if contract has been rolled)
+  if (c.rollCount != null && parseInt(c.rollCount) > 0) {
+    detailHtml += _grainRenderRollsSection(c.id);
+    // Trigger async load if not yet cached
+    if (!_grainContractRolls[c.id]) {
+      _grainLoadRolls(c.id);
+    }
   }
 
   // Elevator hedges section
@@ -517,6 +531,268 @@ function grainDeleteHedge(contractId, hedgeId) {
     })
     .catch(function(err) {
       showToast('Failed to delete hedge: ' + err.message, 'error');
+    });
+}
+
+// ---- Contract Roll Section ----
+
+function _grainLoadRolls(contractId) {
+  fetchContractRollsDB(contractId)
+    .then(function(rolls) {
+      _grainContractRolls[contractId] = rolls || [];
+      var container = document.getElementById('rolls-' + contractId);
+      if (container) {
+        container.innerHTML = _grainRenderRollsContent(contractId);
+      }
+    })
+    .catch(function(err) {
+      _grainContractRolls[contractId] = [];
+      var container = document.getElementById('rolls-' + contractId);
+      if (container) {
+        container.innerHTML = '<span style="color:var(--red);font-size:13px">Failed to load rolls: ' + esc(err.message) + '</span>';
+      }
+    });
+}
+
+function _grainRenderRollsSection(contractId) {
+  return '<div class="hedge-section">' +
+    '<div class="hedge-section-header">' +
+      '<span class="hedge-section-title">Roll History</span>' +
+    '</div>' +
+    '<div id="rolls-' + escapeAttr(contractId) + '">' +
+      _grainRenderRollsContent(contractId) +
+    '</div>' +
+  '</div>';
+}
+
+function _grainRenderRollsContent(contractId) {
+  var rolls = _grainContractRolls[contractId];
+
+  // Not yet loaded
+  if (!rolls) {
+    return '<span style="color:var(--text3);font-size:13px">Loading roll history...</span>';
+  }
+
+  if (rolls.length === 0) {
+    return '<span style="color:var(--text3);font-size:13px">No roll history</span>';
+  }
+
+  var html = '<div class="table-wrap"><table class="hedge-table">' +
+    '<thead><tr>' +
+      '<th>Date</th>' +
+      '<th>From</th>' +
+      '<th></th>' +
+      '<th>To</th>' +
+      '<th style="text-align:right">Spread</th>' +
+      '<th style="text-align:right">Fee</th>' +
+      '<th style="text-align:right">New Price</th>' +
+      '<th>Notes</th>' +
+    '</tr></thead>' +
+    '<tbody>';
+
+  for (var i = 0; i < rolls.length; i++) {
+    var r = rolls[i];
+    var spreadStr = r.spread != null ? (parseFloat(r.spread) >= 0 ? '+' : '') + parseFloat(r.spread).toFixed(4) : '\u2014';
+
+    html += '<tr>' +
+      '<td>' + esc(r.rollDate || '') + '</td>' +
+      '<td style="font-family:var(--mono);font-size:12px">' + esc(r.fromMonth || '') + '</td>' +
+      '<td style="color:var(--text3)">\u2192</td>' +
+      '<td style="font-family:var(--mono);font-size:12px">' + esc(r.toMonth || '') + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + spreadStr + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtPrice(r.fee) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtPrice(r.newFuturesPrice) + '</td>' +
+      '<td>' + esc(r.notes || '') + '</td>' +
+    '</tr>';
+  }
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+// ---- Roll Modal ----
+
+function grainOpenRollModal(contractId) {
+  var contract = null;
+  for (var i = 0; i < STATE.contracts.length; i++) {
+    if (STATE.contracts[i].id === contractId) {
+      contract = STATE.contracts[i];
+      break;
+    }
+  }
+  if (!contract) { showToast('Contract not found', 'error'); return; }
+
+  var fromMonth = contract.futuresMonth || '';
+  var currentFutPrice = contract.futuresPrice != null ? parseFloat(contract.futuresPrice) : null;
+  var priceDisplay = currentFutPrice != null ? _grainFmtPrice(currentFutPrice) : '\u2014';
+
+  // Today's date in YYYY-MM-DD
+  var now = new Date();
+  var todayStr = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0');
+
+  var fmOpts = _grainBuildFuturesMonthOptions('');
+
+  var html = '<h2 class="modal-title">Roll Contract</h2>' +
+    '<div class="grain-roll-info">' +
+      '<strong>' + esc(contract.contractType) + '</strong> \u2014 ' +
+      esc(contract.commodity) + ' \u2014 ' +
+      _grainFmtBushels(contract.bushels) + ' bu' +
+      (fromMonth ? ' &nbsp;|&nbsp; Month: <strong>' + esc(fromMonth) + '</strong>' : '') +
+      (currentFutPrice != null ? ' &nbsp;|&nbsp; Futures: <strong>' + esc(priceDisplay) + '</strong>' : '') +
+    '</div>' +
+    '<form id="grainRollForm" onsubmit="grainSaveRoll(event, \'' + escapeAttr(contractId) + '\')">' +
+      '<div class="grain-modal-grid">' +
+        '<div class="form-group">' +
+          '<label class="form-label">Roll Date</label>' +
+          '<input type="date" class="form-input" id="grRollDate" value="' + escapeAttr(todayStr) + '" required>' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">From Month</label>' +
+          '<input type="text" class="form-input" id="grFromMonth" value="' + escapeAttr(fromMonth) + '" readonly style="background:var(--bg2);color:var(--text3)">' +
+        '</div>' +
+
+        '<div class="form-group">' +
+          '<label class="form-label">To Month (deferred)</label>' +
+          '<select class="form-select" id="grToMonth" required>' + fmOpts + '</select>' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Spread \u2014 deferred minus near ($/bu)</label>' +
+          '<input type="number" class="form-input" id="grSpread" step="0.0001" placeholder="e.g. 0.1200" oninput="_grainUpdateRollPreview()" required>' +
+        '</div>' +
+
+        '<div class="form-group">' +
+          '<label class="form-label">Fee ($/bu)</label>' +
+          '<input type="number" class="form-input" id="grFee" step="0.0001" value="0.02" oninput="_grainUpdateRollPreview()">' +
+        '</div>' +
+        '<div class="form-group grain-roll-preview">' +
+          '<label class="form-label">New Futures Price Preview</label>' +
+          '<strong id="grPricePreview" style="font-size:1rem">' + esc(priceDisplay) + '</strong>' +
+          '<div style="font-size:11px;color:var(--text3);margin-top:2px">= old price + spread \u2212 fee</div>' +
+        '</div>' +
+
+        '<div class="form-group">' +
+          '<label class="form-label">New Delivery Start</label>' +
+          '<input type="date" class="form-input" id="grDeliveryStart" value="' + escapeAttr(contract.deliveryDate || '') + '">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">New Delivery End</label>' +
+          '<input type="date" class="form-input" id="grDeliveryEnd" value="' + escapeAttr(contract.deliveryDateEnd || '') + '">' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="form-group">' +
+        '<label class="form-label">Notes</label>' +
+        '<input type="text" class="form-input" id="grNotes" placeholder="e.g. Dec \u2192 Mar, captured 12\u00A2 carry">' +
+      '</div>' +
+
+      '<div class="modal-actions">' +
+        '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+        '<button type="submit" class="btn btn-primary">Confirm Roll</button>' +
+      '</div>' +
+    '</form>';
+
+  // Store current futures price on a data attribute for the preview function
+  showModal(html);
+
+  // Store the old price for preview calculation after modal renders
+  var previewEl = document.getElementById('grPricePreview');
+  if (previewEl) previewEl.setAttribute('data-old-price', currentFutPrice != null ? String(currentFutPrice) : '');
+}
+
+function _grainUpdateRollPreview() {
+  var previewEl = document.getElementById('grPricePreview');
+  if (!previewEl) return;
+
+  var oldPrice = parseFloat(previewEl.getAttribute('data-old-price'));
+  var spread = parseFloat(document.getElementById('grSpread').value);
+  var fee = parseFloat(document.getElementById('grFee').value) || 0;
+
+  if (!isNaN(oldPrice) && !isNaN(spread)) {
+    var newPrice = oldPrice + spread - fee;
+    previewEl.textContent = newPrice.toFixed(4);
+  } else {
+    previewEl.textContent = '\u2014';
+  }
+}
+
+// ---- Roll Save ----
+
+function grainSaveRoll(e, contractId) {
+  e.preventDefault();
+
+  var contract = null;
+  for (var i = 0; i < STATE.contracts.length; i++) {
+    if (STATE.contracts[i].id === contractId) {
+      contract = STATE.contracts[i];
+      break;
+    }
+  }
+  if (!contract) { showToast('Contract not found', 'error'); return; }
+
+  var toMonth = document.getElementById('grToMonth').value;
+  var spread = _grainParseNum(document.getElementById('grSpread').value);
+  var fee = _grainParseNum(document.getElementById('grFee').value) || 0;
+
+  if (!toMonth) { showToast('Select a To Month', 'error'); return; }
+  if (spread == null) { showToast('Enter the market spread', 'error'); return; }
+
+  var oldPrice = contract.futuresPrice != null ? parseFloat(contract.futuresPrice) : 0;
+  var newFuturesPrice = parseFloat((oldPrice + spread - fee).toFixed(6));
+
+  var rollData = {
+    rollDate: document.getElementById('grRollDate').value || null,
+    fromMonth: document.getElementById('grFromMonth').value || null,
+    toMonth: toMonth,
+    spread: spread,
+    fee: fee,
+    newFuturesPrice: newFuturesPrice,
+    notes: document.getElementById('grNotes').value.trim() || null
+  };
+
+  var contractUpdate = {
+    futuresMonth: toMonth,
+    futuresPrice: newFuturesPrice,
+    rollCount: (parseInt(contract.rollCount) || 0) + 1
+  };
+
+  // Also update delivery dates if changed
+  var newDeliveryStart = document.getElementById('grDeliveryStart').value || null;
+  var newDeliveryEnd = document.getElementById('grDeliveryEnd').value || null;
+  if (newDeliveryStart) contractUpdate.deliveryDate = newDeliveryStart;
+  if (newDeliveryEnd) contractUpdate.deliveryDateEnd = newDeliveryEnd;
+
+  // Create roll record, then update contract
+  createContractRollDB(contractId, rollData)
+    .then(function(createdRoll) {
+      // Add to rolls cache
+      if (!_grainContractRolls[contractId]) {
+        _grainContractRolls[contractId] = [];
+      }
+      _grainContractRolls[contractId].push(createdRoll);
+
+      // Now update the contract
+      return updateRiskContractDB(contractId, contractUpdate);
+    })
+    .then(function(updatedContract) {
+      // Update contract in STATE
+      for (var i = 0; i < STATE.contracts.length; i++) {
+        if (STATE.contracts[i].id === contractId) {
+          STATE.contracts[i] = updatedContract;
+          break;
+        }
+      }
+
+      // Ensure row is expanded to show roll history
+      _grainExpandedRows[contractId] = true;
+
+      closeModal();
+      renderApp();
+      showToast('Contract rolled to ' + toMonth + ' @ ' + newFuturesPrice.toFixed(4), 'success');
+    })
+    .catch(function(err) {
+      showToast('Failed to roll contract: ' + err.message, 'error');
     });
 }
 

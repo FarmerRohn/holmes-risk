@@ -1063,6 +1063,25 @@ textarea.form-input {
   color: var(--text3);
 }
 
+/* ==================== CONTRACT ROLLING ==================== */
+
+.grain-roll-info {
+  font-size: 13px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.grain-roll-preview {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
 /* ==================== POSITIONS PAGE ==================== */
 
 .pos-side {
