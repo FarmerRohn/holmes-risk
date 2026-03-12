@@ -180,6 +180,8 @@ async function build() {
         'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators',
         // Price log functions
         'priceLogOpenModal', 'priceLogSave', 'priceLogFilterChange',
+        // Documents page functions
+        'docOpenUploadModal', 'docUpload', 'docDelete', '_docToggleParsed',
         // Market page functions
         'marketSelectCommodity', 'marketRefresh',
         // Basis page functions
