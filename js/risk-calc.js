@@ -140,12 +140,11 @@ function calcPL(contracts, positions, settings, marketPrices) {
 
 // ---- Exposure calculation ----
 
-function calcExposure(contracts, positions, settings) {
+function calcExposure(contracts, positions, settings, cropYear) {
   contracts = contracts || [];
   positions = positions || [];
   settings = settings || {};
-
-  var cropYear = STATE.activeCropYear || SEASON.current;
+  cropYear = cropYear || STATE.activeCropYear || SEASON.current;
 
   // Collect unique commodities from contracts
   var commodityMap = {};
