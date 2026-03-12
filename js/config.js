@@ -18,4 +18,4 @@ var MONTH_NAMES = { F:'Jan',G:'Feb',H:'Mar',J:'Apr',K:'May',M:'Jun',N:'Jul',Q:'A
 var DEFAULT_COMMODITIES = ['Corn', 'Soybeans', 'Wheat', 'Heating Oil'];
 var DEFAULT_BUSHELS_PER_CONTRACT = { Corn: 5000, Soybeans: 5000, Wheat: 5000, 'Heating Oil': 42000 };
 var DEFAULT_UNIT_LABELS = { Corn: 'bu', Soybeans: 'bu', Wheat: 'bu', 'Heating Oil': 'gal' };
-var APP_VERSION = '2.0.0';
+var APP_VERSION = '2.0.1';
