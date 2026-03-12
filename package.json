@@ -1,0 +1,11 @@
+{
+  "name": "holmes-risk",
+  "version": "1.0.0",
+  "description": "Grain risk management app for Holmes Farms",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "terser": "^5.37.0"
+  }
+}

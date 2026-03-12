@@ -1,0 +1,126 @@
+// ==================== HOLMES RISK — UI UTILITIES ====================
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeAttr(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// ---- Toast Notifications ----
+
+function showToast(msg, type) {
+  var existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-' + (type || 'info');
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(function() { toast.classList.add('toast-visible'); });
+  setTimeout(function() {
+    toast.classList.remove('toast-visible');
+    setTimeout(function() { toast.remove(); }, 300);
+  }, 3000);
+}
+
+// ---- Loading Overlay ----
+
+function showLoading() {
+  var el = document.getElementById('loadingOverlay');
+  if (el) el.style.display = 'flex';
+}
+
+function hideLoading() {
+  var el = document.getElementById('loadingOverlay');
+  if (el) el.style.display = 'none';
+}
+
+// ---- Modal Dialog ----
+
+function showModal(html) {
+  closeModal();
+  var backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.id = 'modalBackdrop';
+  backdrop.onclick = function(e) { if (e.target === backdrop) closeModal(); };
+
+  var modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = html;
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  var el = document.getElementById('modalBackdrop');
+  if (el) el.remove();
+  document.body.style.overflow = '';
+}
+
+// ---- Theme Toggle ----
+
+function toggleTheme() {
+  var current = document.documentElement.dataset.theme;
+  var next = current === 'light' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('hf-theme', next);
+}
+
+// ---- Header ----
+
+function renderHeader() {
+  var name = (STATE.user && STATE.user.name) || STATE.userEmail || '';
+  return '<header class="app-header">' +
+    '<div class="header-left">' +
+      '<span class="page-title">Risk Management</span>' +
+    '</div>' +
+    '<div class="header-right">' +
+      '<span class="header-user">' + esc(name) + '</span>' +
+      '<button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">' +
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>' +
+      '</button>' +
+      '<button class="icon-btn" onclick="signOut()" title="Sign out">' +
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>' +
+      '</button>' +
+    '</div>' +
+  '</header>';
+}
+
+// ---- Tab Navigation ----
+
+var TAB_CONFIG = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'grain', label: 'Grain' },
+  { id: 'inputs', label: 'Inputs' },
+  { id: 'inventory', label: 'Inventory' },
+  { id: 'market', label: 'Market' },
+  { id: 'documents', label: 'Documents' },
+  { id: 'pnl', label: 'P&L' },
+  { id: 'settings', label: 'Settings' }
+];
+
+function renderTabNav() {
+  var html = '<nav class="tab-nav"><div class="tab-nav-inner">';
+  for (var i = 0; i < TAB_CONFIG.length; i++) {
+    var tab = TAB_CONFIG[i];
+    var active = STATE.activeTab === tab.id ? ' tab-active' : '';
+    html += '<button class="tab-btn' + active + '" onclick="showPage(\'' + tab.id + '\')">' + esc(tab.label) + '</button>';
+  }
+  html += '</div></nav>';
+  return html;
+}
