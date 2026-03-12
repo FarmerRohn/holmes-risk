@@ -157,13 +157,23 @@ async function build() {
         'grainSaveContract', 'grainOnTypeChange', 'grainToggleRow',
         // Grain page — elevator hedge functions
         'grainOpenHedgeModal', 'grainSaveHedge', 'grainDeleteHedge',
+        // Grain page — contract roll functions
+        'grainOpenRollModal', 'grainSaveRoll', '_grainUpdateRollPreview',
+        // Grain page — contract split functions
+        'grainOpenSplitModal', '_grainSplitRenderPieces', '_grainSplitUpdateTotal', '_grainSplitSave',
         // Positions page functions
         'posOpenPositionModal', 'posDeletePosition', 'posApplyFilter',
         'posSavePosition', 'posOnTypeChange', 'posOnStatusChange',
         'posOnCommodityChange', 'posToggleRow', 'posUpdatePnlPreview',
-        'posCalcGreeks',
+        'posCalcGreeks', 'posOpenExerciseModal', 'posConfirmExercise',
+        // Positions page — roll functions
+        'posOpenRollModal', 'posConfirmRoll', '_posRollUpdatePreview',
+        // Positions page — split functions
+        'posOpenSplitModal', 'posConfirmSplit', '_posSplitRenderPieces', '_posSplitUpdateTotal',
         // Settings page functions
-        'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators'
+        'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators',
+        // Price log functions
+        'priceLogOpenModal', 'priceLogSave', 'priceLogFilterChange'
       ]
     },
     output: {

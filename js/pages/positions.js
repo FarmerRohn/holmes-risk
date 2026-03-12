@@ -39,7 +39,7 @@ function _posRenderToolbar(cropYear) {
   }
 
   // Status filter
-  var statuses = ['Open', 'Closed', 'Expired'];
+  var statuses = ['Open', 'Closed', 'Expired', 'Exercised'];
   var statOpts = '<option value="All">All Statuses</option>';
   for (var si = 0; si < statuses.length; si++) {
     var sSel = _posFilters.status === statuses[si] ? ' selected' : '';
@@ -151,6 +151,15 @@ function _posRenderTable(positions) {
       '<td style="text-align:right;font-family:var(--mono)">' + (delta != null ? delta.toFixed(4) : '\u2014') + '</td>' +
       '<td><span class="grain-status ' + statusClass + '">' + esc(p.status || '') + '</span></td>' +
       '<td class="grain-actions" onclick="event.stopPropagation()">' +
+        ((p.status === 'Open' && (p.contractType === 'Call' || p.contractType === 'Put'))
+          ? '<button class="btn btn-sm pos-btn-exercise" onclick="posOpenExerciseModal(\'' + escapeAttr(id) + '\')">Exercise</button> '
+          : '') +
+        ((p.status === 'Open' && p.contractType === 'Futures')
+          ? '<button class="btn btn-secondary btn-sm" onclick="posOpenRollModal(\'' + escapeAttr(id) + '\')">Roll</button> '
+          : '') +
+        (p.status === 'Open'
+          ? '<button class="btn btn-secondary btn-sm" onclick="posOpenSplitModal(\'' + escapeAttr(id) + '\')">Split</button> '
+          : '') +
         '<button class="btn btn-secondary btn-sm" onclick="posOpenPositionModal(\'' + escapeAttr(id) + '\')">Edit</button> ' +
         '<button class="btn btn-danger btn-sm" onclick="posDeletePosition(\'' + escapeAttr(id) + '\')">Delete</button>' +
       '</td>' +
@@ -183,6 +192,42 @@ function _posRenderDetailPanel(p) {
   if (p.account) parts.push('<strong>Account:</strong> ' + esc(p.account));
   if (p.notes) parts.push('<strong>Notes:</strong> ' + esc(p.notes));
 
+  // Exercise relationship indicators
+  if (p.sourceType === 'exercise' && p.sourceOptionId) {
+    parts.push('<span class="pos-badge-exercise">from exercise</span>');
+  }
+  if (p.resultingPositionId) {
+    parts.push('<span class="pos-badge-exercised">Exercised \u2192 resulting position</span>');
+  }
+
+  // Roll relationship indicators
+  if (p.rolledFromId) {
+    var rolledFromPos = _posFindById(p.rolledFromId);
+    if (rolledFromPos) {
+      parts.push('<span class="pos-badge-rolled">Rolled from ' + esc(rolledFromPos.underlying || rolledFromPos.commodity) + '</span>');
+    } else {
+      parts.push('<span class="pos-badge-rolled">Rolled from previous position</span>');
+    }
+  }
+  if (p.rolledToId) {
+    var rolledToPos = _posFindById(p.rolledToId);
+    if (rolledToPos) {
+      parts.push('<span class="pos-badge-rolled">Rolled to ' + esc(rolledToPos.underlying || rolledToPos.commodity) + '</span>');
+    } else {
+      parts.push('<span class="pos-badge-rolled">Rolled to new position</span>');
+    }
+  }
+
+  // Split relationship indicator
+  if (p.splitFromId) {
+    var splitParent = _posFindById(p.splitFromId);
+    if (splitParent) {
+      parts.push('<span class="pos-badge-split">Split from ' + esc(splitParent.underlying || splitParent.commodity) + ' (' + splitParent.contracts + ' contracts)</span>');
+    } else {
+      parts.push('<span class="pos-badge-split">Split from parent position</span>');
+    }
+  }
+
   if (parts.length === 0) {
     return '<div class="grain-detail-inner"><span style="color:var(--text3)">No additional details</span></div>';
   }
@@ -195,6 +240,7 @@ function _posStatusClass(status) {
     case 'Open': return 'grain-status-open';
     case 'Closed': return 'pos-status-closed';
     case 'Expired': return 'pos-status-expired';
+    case 'Exercised': return 'pos-status-exercised';
     default: return '';
   }
 }
@@ -265,7 +311,7 @@ function posOpenPositionModal(id) {
   }
 
   // Status options
-  var statusList = ['Open', 'Closed', 'Expired'];
+  var statusList = ['Open', 'Closed', 'Expired', 'Exercised'];
   var statOpts = '';
   var currentStatus = p.status || 'Open';
   for (var sti = 0; sti < statusList.length; sti++) {
@@ -690,6 +736,195 @@ function posDeletePosition(id) {
     });
 }
 
+// ---- Exercise Modal ----
+
+function posOpenExerciseModal(positionId) {
+  var position = null;
+  for (var i = 0; i < STATE.positions.length; i++) {
+    if (STATE.positions[i].id === positionId) {
+      position = STATE.positions[i];
+      break;
+    }
+  }
+  if (!position) { showToast('Position not found', 'error'); return; }
+
+  var isCall = position.contractType === 'Call';
+  var resultSide = isCall ? 'Long' : 'Short';
+  var strike = position.strike != null ? parseFloat(position.strike) : null;
+  var premium = position.entryPrice != null ? parseFloat(position.entryPrice) : 0;
+  var underlying = position.underlying || '';
+  var bpc = position.bushelsPerContract != null ? parseFloat(position.bushelsPerContract) : (DEFAULT_BUSHELS_PER_CONTRACT[position.commodity] || 5000);
+  var contracts = position.contracts != null ? parseFloat(position.contracts) : 0;
+  var totalBu = contracts * bpc;
+  var effEntry = strike != null ? parseFloat((isCall ? strike + premium : strike - premium).toFixed(6)) : null;
+
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+  var sideColor = resultSide === 'Long' ? 'var(--green)' : 'var(--red)';
+  var effLabel = isCall ? 'Strike + Premium paid' : 'Strike \u2212 Premium paid';
+
+  var html = '<h2 class="modal-title">Exercise Option \u2014 ' + esc(position.contractType) + ' ' + esc(position.underlying || position.commodity) + '</h2>' +
+
+    // Info banner
+    '<div class="pos-exercise-info">' +
+      'Exercising: <strong>' + esc(position.contractType) + ' ' + esc(position.underlying || position.commodity) + '</strong>' +
+      ' &nbsp;|&nbsp; Strike: <strong>' + (strike != null ? _posFmtPrice(strike) : '\u2014') + '</strong>' +
+      ' &nbsp;|&nbsp; ' + contracts + ' contract' + (contracts !== 1 ? 's' : '') + ' (' + totalBu.toLocaleString() + ' bu)' +
+      ' &nbsp;|&nbsp; Premium paid: <strong>' + _posFmtPrice(premium) + '/bu</strong>' +
+    '</div>' +
+
+    // Exercise date
+    '<div class="grain-modal-grid">' +
+      '<div class="form-group">' +
+        '<label class="form-label">Exercise Date</label>' +
+        '<input type="date" class="form-input" id="posExerciseDate" value="' + escapeAttr(todayStr) + '" required>' +
+      '</div>' +
+      '<div class="form-group"></div>' +
+    '</div>' +
+
+    // Resulting futures preview
+    '<div class="pos-exercise-preview-header">Resulting Futures Position</div>' +
+    '<div class="grain-modal-grid">' +
+      '<div class="pos-exercise-preview-field">' +
+        '<label class="form-label" style="color:var(--text3)">Side</label>' +
+        '<strong style="font-size:1rem;color:' + sideColor + '">' + esc(resultSide) + '</strong>' +
+      '</div>' +
+      '<div class="pos-exercise-preview-field">' +
+        '<label class="form-label" style="color:var(--text3)">Entry Price = Strike</label>' +
+        '<strong style="font-size:1rem">' + (strike != null ? _posFmtPrice(strike) : '\u2014 (set strike on option first)') + '</strong>' +
+      '</div>' +
+    '</div>' +
+    '<div class="grain-modal-grid">' +
+      '<div class="pos-exercise-preview-field">' +
+        '<label class="form-label" style="color:var(--text3)">Futures Symbol</label>' +
+        '<strong>' + esc(underlying || '(derived from option)') + '</strong>' +
+      '</div>' +
+      '<div class="pos-exercise-preview-field pos-exercise-eff">' +
+        '<label class="form-label" style="color:var(--text3)">Effective Entry (after premium)</label>' +
+        '<strong style="font-size:1rem">' + (effEntry != null ? _posFmtPrice(effEntry) : '\u2014') + '</strong>' +
+        '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + esc(effLabel) + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // Notes
+    '<div class="form-group" style="margin-top:12px">' +
+      '<label class="form-label">Notes</label>' +
+      '<input type="text" class="form-input" id="posExerciseNotes" placeholder="e.g. exercised Dec corn put into short futures">' +
+    '</div>' +
+
+    // Actions
+    '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="button" class="btn btn-primary" onclick="posConfirmExercise(\'' + escapeAttr(positionId) + '\')">Confirm Exercise</button>' +
+    '</div>';
+
+  showModal(html);
+}
+
+// ---- Exercise save handler ----
+
+function posConfirmExercise(positionId) {
+  var option = null;
+  var optionIndex = -1;
+  for (var i = 0; i < STATE.positions.length; i++) {
+    if (STATE.positions[i].id === positionId) {
+      option = STATE.positions[i];
+      optionIndex = i;
+      break;
+    }
+  }
+  if (!option) { showToast('Position not found', 'error'); return; }
+
+  var isCall = option.contractType === 'Call';
+  var strike = option.strike != null ? parseFloat(option.strike) : null;
+  var premium = option.entryPrice != null ? parseFloat(option.entryPrice) : 0;
+  var underlying = option.underlying || '';
+
+  // Validate strike
+  if (strike == null) {
+    showToast('Set a strike price on this option before exercising', 'error');
+    return;
+  }
+
+  var exerciseDateEl = document.getElementById('posExerciseDate');
+  var exerciseDate = exerciseDateEl ? exerciseDateEl.value : '';
+  if (!exerciseDate) {
+    showToast('Exercise date is required', 'error');
+    return;
+  }
+
+  var notesEl = document.getElementById('posExerciseNotes');
+  var notes = notesEl ? notesEl.value.trim() : '';
+
+  var resultSide = isCall ? 'Long' : 'Short';
+  var effectiveEntry = parseFloat((isCall ? strike + premium : strike - premium).toFixed(6));
+  var bpc = option.bushelsPerContract != null ? parseFloat(option.bushelsPerContract) : (DEFAULT_BUSHELS_PER_CONTRACT[option.commodity] || 5000);
+  var contracts = option.contracts != null ? parseFloat(option.contracts) : 0;
+
+  // Build new futures position data
+  var newPositionData = {
+    commodity: option.commodity,
+    cropYear: option.cropYear,
+    underlying: underlying,
+    contractType: 'Futures',
+    positionSide: resultSide,
+    contracts: contracts,
+    bushelsPerContract: bpc,
+    strike: null,
+    entryPrice: strike,
+    currentPrice: null,
+    effectiveEntryPrice: effectiveEntry,
+    delta: resultSide === 'Long' ? 1 : -1,
+    gamma: 0,
+    theta: 0,
+    vega: null,
+    iv: null,
+    expiryDate: null,
+    status: 'Open',
+    company: option.company || null,
+    account: option.account || null,
+    notes: notes || null,
+    linkedContractId: option.linkedContractId || null,
+    sourceType: 'exercise',
+    sourceOptionId: positionId
+  };
+
+  // 1. Create the new futures position first
+  createRiskPositionDB(newPositionData)
+    .then(function(created) {
+      var newId = created.id;
+
+      // 2. Update the option position
+      var optionUpdate = {
+        status: 'Exercised',
+        exerciseDate: exerciseDate,
+        closeReason: 'Exercised \u2192 ' + resultSide + ' ' + underlying,
+        resultingPositionId: newId
+      };
+
+      return updateRiskPositionDB(positionId, optionUpdate)
+        .then(function(updatedOption) {
+          // Update STATE: replace the option
+          for (var i = 0; i < STATE.positions.length; i++) {
+            if (STATE.positions[i].id === positionId) {
+              STATE.positions[i] = updatedOption;
+              break;
+            }
+          }
+          // Push new futures position
+          STATE.positions.push(created);
+
+          closeModal();
+          renderApp();
+          showToast('Option exercised \u2192 ' + resultSide + ' ' + underlying + ' @ ' + _posFmtPrice(strike) + ' (eff ' + _posFmtPrice(effectiveEntry) + ')', 'success');
+        });
+    })
+    .catch(function(err) {
+      showToast('Exercise failed: ' + err.message, 'error');
+    });
+}
+
 // ---- Helper functions ----
 
 function _posFmtPrice(n) {
@@ -728,4 +963,432 @@ function _posBuildUniqueDatalist(items, field) {
     }
   }
   return html;
+}
+
+function _posFindById(id) {
+  if (!id || !STATE.positions) return null;
+  for (var i = 0; i < STATE.positions.length; i++) {
+    if (STATE.positions[i].id === id) return STATE.positions[i];
+  }
+  return null;
+}
+
+// ==================== POSITION ROLLING ====================
+
+function posOpenRollModal(positionId) {
+  var position = _posFindById(positionId);
+  if (!position) { showToast('Position not found', 'error'); return; }
+
+  var side = position.positionSide || 'Long';
+  var sideSign = side === 'Short' ? -1 : 1;
+  var contracts = position.contracts != null ? parseFloat(position.contracts) : 0;
+  var entry = position.entryPrice != null ? parseFloat(position.entryPrice) : null;
+  var current = position.currentPrice != null ? parseFloat(position.currentPrice) : null;
+  var underlying = position.underlying || '';
+  var bpc = position.bushelsPerContract != null ? parseFloat(position.bushelsPerContract) : (DEFAULT_BUSHELS_PER_CONTRACT[position.commodity] || 5000);
+
+  var fmOpts = _grainBuildFuturesMonthOptions('');
+
+  var html = '<h2 class="modal-title">Roll Futures Position</h2>' +
+
+    // Info banner
+    '<div class="pos-roll-info">' +
+      '<strong>' + esc(side) + ' ' + contracts + ' ' + esc(underlying || position.commodity) + '</strong>' +
+      ' &nbsp;|&nbsp; Entry: <strong>' + _posFmtPrice(entry) + '</strong>' +
+      (current != null ? ' &nbsp;|&nbsp; Current: <strong>' + _posFmtPrice(current) + '</strong>' : '') +
+      ' &nbsp;|&nbsp; ' + (contracts * bpc).toLocaleString() + ' bu' +
+    '</div>' +
+
+    '<form id="posRollForm" onsubmit="event.preventDefault()">' +
+
+      // Near Month — Close section
+      '<div class="pos-roll-section-header">Near Month \u2014 Close</div>' +
+      '<div class="grain-modal-grid">' +
+        '<div class="form-group">' +
+          '<label class="form-label">Close Price ($/bu) *</label>' +
+          '<input type="number" class="form-input" id="posRollClosePrice" step="0.0001" value="' + escapeAttr(current != null ? String(current) : '') + '" required oninput="_posRollUpdatePreview()">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Commission ($/bu total)</label>' +
+          '<input type="number" class="form-input" id="posRollCommission" step="0.0001" value="0.0004" oninput="_posRollUpdatePreview()">' +
+        '</div>' +
+      '</div>' +
+
+      // Deferred Month — New Position section
+      '<div class="pos-roll-section-header">Deferred Month \u2014 New Position</div>' +
+      '<div class="grain-modal-grid">' +
+        '<div class="form-group">' +
+          '<label class="form-label">New Futures Month *</label>' +
+          '<select class="form-select" id="posRollNewMonth" required onchange="_posRollUpdatePreview()">' + fmOpts + '</select>' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">New Entry Price ($/bu) *</label>' +
+          '<input type="number" class="form-input" id="posRollNewEntry" step="0.0001" required oninput="_posRollUpdatePreview()">' +
+        '</div>' +
+      '</div>' +
+
+      // Effective Entry Preview
+      '<div class="pos-roll-preview" id="posRollPreview"></div>' +
+
+      // Notes
+      '<div class="form-group">' +
+        '<label class="form-label">Notes</label>' +
+        '<input type="text" class="form-input" id="posRollNotes" placeholder="e.g. rolled Dec to Mar, captured carry">' +
+      '</div>' +
+
+      '<div class="modal-actions">' +
+        '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+        '<button type="button" class="btn btn-primary" onclick="posConfirmRoll(\'' + escapeAttr(positionId) + '\')">Confirm Roll</button>' +
+      '</div>' +
+    '</form>';
+
+  showModal(html);
+
+  // Store data attributes for preview calculation
+  setTimeout(function() {
+    var previewEl = document.getElementById('posRollPreview');
+    if (previewEl) {
+      previewEl.setAttribute('data-entry', entry != null ? String(entry) : '');
+      previewEl.setAttribute('data-side-sign', String(sideSign));
+    }
+    _posRollUpdatePreview();
+  }, 50);
+}
+
+function _posRollUpdatePreview() {
+  var previewEl = document.getElementById('posRollPreview');
+  if (!previewEl) return;
+
+  var entryPrice = parseFloat(previewEl.getAttribute('data-entry'));
+  var sideSign = parseInt(previewEl.getAttribute('data-side-sign')) || 1;
+
+  var closePrice = _posParseNum(document.getElementById('posRollClosePrice') ? document.getElementById('posRollClosePrice').value : null);
+  var commission = _posParseNum(document.getElementById('posRollCommission') ? document.getElementById('posRollCommission').value : null) || 0;
+  var newEntry = _posParseNum(document.getElementById('posRollNewEntry') ? document.getElementById('posRollNewEntry').value : null);
+
+  if (isNaN(entryPrice) || closePrice == null || newEntry == null) {
+    previewEl.innerHTML = '<div class="pos-roll-preview-inner" style="color:var(--text3)">Fill in close price and new entry to see effective entry preview</div>';
+    return;
+  }
+
+  var realizedPnl = (closePrice - entryPrice) * sideSign - commission;
+  var effectiveEntry = newEntry - realizedPnl * sideSign;
+
+  var pnlClass = realizedPnl >= 0 ? 'pos-pnl-positive' : 'pos-pnl-negative';
+  var pnlSign = realizedPnl >= 0 ? '+' : '';
+
+  previewEl.innerHTML =
+    '<div class="pos-roll-preview-inner">' +
+      '<div style="display:flex;gap:24px;flex-wrap:wrap">' +
+        '<div>' +
+          '<div class="pos-roll-preview-label">Realized P&amp;L (near leg)</div>' +
+          '<div class="' + pnlClass + '" style="font-weight:700;font-family:var(--mono)">' + pnlSign + realizedPnl.toFixed(4) + ' $/bu</div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="pos-roll-preview-label">Effective Entry (deferred)</div>' +
+          '<div style="font-weight:700;font-family:var(--mono);color:var(--text)">' + effectiveEntry.toFixed(4) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text3);margin-top:6px">' +
+        'Realized = (close \u2212 entry) \u00D7 side \u2212 commission &nbsp;|&nbsp; ' +
+        'Effective = newEntry \u2212 realized \u00D7 side' +
+      '</div>' +
+    '</div>';
+}
+
+function posConfirmRoll(positionId) {
+  var position = _posFindById(positionId);
+  if (!position) { showToast('Position not found', 'error'); return; }
+
+  var side = position.positionSide || 'Long';
+  var sideSign = side === 'Short' ? -1 : 1;
+  var entry = position.entryPrice != null ? parseFloat(position.entryPrice) : 0;
+  var contracts = position.contracts != null ? parseFloat(position.contracts) : 0;
+  var bpc = position.bushelsPerContract != null ? parseFloat(position.bushelsPerContract) : (DEFAULT_BUSHELS_PER_CONTRACT[position.commodity] || 5000);
+
+  var closePrice = _posParseNum(document.getElementById('posRollClosePrice') ? document.getElementById('posRollClosePrice').value : null);
+  var commission = _posParseNum(document.getElementById('posRollCommission') ? document.getElementById('posRollCommission').value : null) || 0;
+  var newMonth = document.getElementById('posRollNewMonth') ? document.getElementById('posRollNewMonth').value : '';
+  var newEntry = _posParseNum(document.getElementById('posRollNewEntry') ? document.getElementById('posRollNewEntry').value : null);
+  var notes = document.getElementById('posRollNotes') ? document.getElementById('posRollNotes').value.trim() : '';
+
+  // Validate
+  if (closePrice == null) { showToast('Close price is required', 'error'); return; }
+  if (!newMonth) { showToast('Select a new futures month', 'error'); return; }
+  if (newEntry == null) { showToast('New entry price is required', 'error'); return; }
+
+  // Calculate
+  var realizedPnl = (closePrice - entry) * sideSign - commission;
+  var effectiveEntry = newEntry - realizedPnl * sideSign;
+
+  // Build new position data
+  var newPositionData = {
+    commodity: position.commodity,
+    cropYear: position.cropYear,
+    underlying: newMonth,
+    contractType: 'Futures',
+    positionSide: side,
+    contracts: contracts,
+    bushelsPerContract: bpc,
+    entryPrice: newEntry,
+    effectiveEntryPrice: parseFloat(effectiveEntry.toFixed(6)),
+    currentPrice: null,
+    delta: side === 'Long' ? 1 : -1,
+    gamma: 0,
+    theta: 0,
+    status: 'Open',
+    company: position.company || null,
+    account: position.account || null,
+    notes: notes || null,
+    linkedContractId: position.linkedContractId || null,
+    rolledFromId: positionId,
+    sourceType: 'roll'
+  };
+
+  showLoading();
+
+  // 1. Create the new deferred position
+  createRiskPositionDB(newPositionData)
+    .then(function(created) {
+      var newId = created.id;
+
+      // 2. Update original position — close it
+      var originalUpdate = {
+        status: 'Closed',
+        closedPrice: closePrice,
+        closeReason: 'Rolled \u2192 ' + newMonth,
+        rolledToId: newId
+      };
+
+      return updateRiskPositionDB(positionId, originalUpdate)
+        .then(function(updatedOriginal) {
+          // Update STATE: replace the original
+          for (var i = 0; i < STATE.positions.length; i++) {
+            if (STATE.positions[i].id === positionId) {
+              STATE.positions[i] = updatedOriginal;
+              break;
+            }
+          }
+          // Push new position
+          STATE.positions.push(created);
+
+          hideLoading();
+          closeModal();
+          renderApp();
+          showToast('Position rolled \u2192 ' + newMonth + ' @ ' + _posFmtPrice(newEntry) + ' (eff ' + _posFmtPrice(effectiveEntry) + ')', 'success');
+        });
+    })
+    .catch(function(err) {
+      hideLoading();
+      showToast('Roll failed: ' + err.message, 'error');
+    });
+}
+
+// ==================== POSITION SPLITTING ====================
+
+function posOpenSplitModal(positionId) {
+  var position = _posFindById(positionId);
+  if (!position) { showToast('Position not found', 'error'); return; }
+
+  var totalContracts = position.contracts != null ? parseFloat(position.contracts) : 0;
+  var side = position.positionSide || 'Long';
+  var underlying = position.underlying || '';
+
+  var html = '<h2 class="modal-title">Split Position</h2>' +
+
+    // Info banner
+    '<div class="pos-roll-info">' +
+      '<strong>' + esc(side) + ' ' + totalContracts + ' ' + esc(position.contractType || 'Futures') + '</strong>' +
+      ' &nbsp;|&nbsp; ' + esc(underlying || position.commodity) +
+      ' &nbsp;|&nbsp; Entry: <strong>' + _posFmtPrice(position.entryPrice) + '</strong>' +
+    '</div>' +
+
+    // Piece count selector
+    '<div style="display:flex;align-items:center;gap:10px;margin:8px 0">' +
+      '<label style="font-size:0.85rem;font-weight:600;color:var(--text2);white-space:nowrap">Split into</label>' +
+      '<select class="form-select" id="posSplitCount" style="width:auto" onchange="_posSplitRenderPieces(\'' + escapeAttr(positionId) + '\',' + totalContracts + ')">' +
+        '<option value="2" selected>2 pieces</option>' +
+        '<option value="3">3 pieces</option>' +
+        '<option value="4">4 pieces</option>' +
+      '</select>' +
+    '</div>' +
+
+    // Pieces container
+    '<div id="posSplitPiecesWrap"></div>' +
+
+    // Running total
+    '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg2);border-radius:6px;font-size:0.85rem;margin:8px 0">' +
+      '<span style="color:var(--text3)">Total:</span>' +
+      '<span id="posSplitTotalDisplay" style="font-weight:700;color:var(--text)">0</span>' +
+      '<span style="color:var(--text3)">/ ' + totalContracts + ' contracts</span>' +
+      '<span id="posSplitTotalStatus" style="margin-left:4px"></span>' +
+    '</div>' +
+
+    '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="button" class="btn btn-primary" onclick="posConfirmSplit(\'' + escapeAttr(positionId) + '\',' + totalContracts + ')">Confirm Split</button>' +
+    '</div>';
+
+  showModal(html);
+
+  // Render pieces after modal is in the DOM
+  setTimeout(function() { _posSplitRenderPieces(positionId, totalContracts); }, 50);
+}
+
+function _posSplitRenderPieces(positionId, totalContracts) {
+  var countEl = document.getElementById('posSplitCount');
+  var n = countEl ? parseInt(countEl.value) : 2;
+  var even = Math.floor(totalContracts / n);
+  var html = '';
+
+  for (var i = 0; i < n; i++) {
+    var suggested = (i === n - 1) ? totalContracts - even * (n - 1) : even;
+    html += '<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;background:var(--bg1)">' +
+      '<div style="font-size:0.82rem;font-weight:700;color:var(--primary);margin-bottom:8px">Piece ' + (i + 1) + '</div>' +
+      '<div class="grain-modal-grid">' +
+        '<div class="form-group">' +
+          '<label class="form-label">Contracts *</label>' +
+          '<input type="number" class="form-input" id="posSplitContracts' + i + '" min="1" step="1" value="' + suggested + '" oninput="_posSplitUpdateTotal(' + totalContracts + ')">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Notes</label>' +
+          '<input type="text" class="form-input" id="posSplitNotes' + i + '" placeholder="">' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  var wrap = document.getElementById('posSplitPiecesWrap');
+  if (wrap) wrap.innerHTML = html;
+
+  _posSplitUpdateTotal(totalContracts);
+}
+
+function _posSplitUpdateTotal(totalContracts) {
+  var countEl = document.getElementById('posSplitCount');
+  var n = countEl ? parseInt(countEl.value) : 2;
+  var sum = 0;
+  for (var i = 0; i < n; i++) {
+    var el = document.getElementById('posSplitContracts' + i);
+    sum += el ? (parseFloat(el.value) || 0) : 0;
+  }
+  var disp = document.getElementById('posSplitTotalDisplay');
+  var stat = document.getElementById('posSplitTotalStatus');
+
+  if (disp) disp.textContent = sum + ' contracts';
+
+  if (stat) {
+    var diff = Math.round(sum) - Math.round(totalContracts);
+    if (diff === 0) {
+      stat.textContent = '\u2713 Balanced';
+      stat.style.color = 'var(--green, #166534)';
+    } else if (diff < 0) {
+      stat.textContent = Math.abs(diff) + ' remaining';
+      stat.style.color = 'var(--yellow, #d97706)';
+    } else {
+      stat.textContent = diff + ' over';
+      stat.style.color = 'var(--red, #c53030)';
+    }
+  }
+}
+
+function posConfirmSplit(positionId, totalContracts) {
+  var position = _posFindById(positionId);
+  if (!position) { showToast('Position not found', 'error'); return; }
+
+  var countEl = document.getElementById('posSplitCount');
+  var n = countEl ? parseInt(countEl.value) : 2;
+
+  // Validate sum
+  var sum = 0;
+  for (var i = 0; i < n; i++) {
+    var el = document.getElementById('posSplitContracts' + i);
+    sum += el ? (parseFloat(el.value) || 0) : 0;
+  }
+  if (Math.round(sum) !== Math.round(totalContracts)) {
+    showToast('Pieces must sum to ' + totalContracts + ' contracts \u2014 currently ' + sum, 'error');
+    return;
+  }
+
+  // Validate each piece > 0
+  for (var i = 0; i < n; i++) {
+    var cEl = document.getElementById('posSplitContracts' + i);
+    if (!cEl || (parseFloat(cEl.value) || 0) <= 0) {
+      showToast('Piece ' + (i + 1) + ' must have contracts > 0', 'error');
+      return;
+    }
+  }
+
+  // Collect piece data
+  var pieces = [];
+  for (var i = 0; i < n; i++) {
+    var pieceContracts = parseFloat(document.getElementById('posSplitContracts' + i).value);
+    var notesEl = document.getElementById('posSplitNotes' + i);
+    var pieceNotes = notesEl ? (notesEl.value || '').trim() : '';
+
+    pieces.push({
+      commodity: position.commodity,
+      cropYear: position.cropYear,
+      underlying: position.underlying,
+      contractType: position.contractType,
+      positionSide: position.positionSide,
+      contracts: pieceContracts,
+      bushelsPerContract: position.bushelsPerContract,
+      strike: position.strike,
+      entryPrice: position.entryPrice,
+      currentPrice: position.currentPrice,
+      effectiveEntryPrice: position.effectiveEntryPrice,
+      delta: position.delta,
+      gamma: position.gamma,
+      theta: position.theta,
+      vega: position.vega,
+      iv: position.iv,
+      expiryDate: position.expiryDate,
+      status: 'Open',
+      company: position.company,
+      account: position.account,
+      notes: pieceNotes || position.notes || null,
+      linkedContractId: position.linkedContractId,
+      splitFromId: positionId
+    });
+  }
+
+  // Save all children, then update parent
+  showLoading();
+  var childPromises = [];
+  for (var i = 0; i < pieces.length; i++) {
+    childPromises.push(createRiskPositionDB(pieces[i]));
+  }
+
+  Promise.all(childPromises)
+    .then(function(children) {
+      // Add children to STATE
+      for (var j = 0; j < children.length; j++) {
+        STATE.positions.push(children[j]);
+      }
+
+      // Update parent status to Closed
+      return updateRiskPositionDB(positionId, {
+        status: 'Closed',
+        closeReason: 'Split into ' + n + ' positions'
+      });
+    })
+    .then(function(updatedParent) {
+      // Update parent in STATE
+      for (var k = 0; k < STATE.positions.length; k++) {
+        if (STATE.positions[k].id === positionId) {
+          STATE.positions[k] = updatedParent;
+          break;
+        }
+      }
+
+      hideLoading();
+      closeModal();
+      renderApp();
+      showToast('Position split into ' + n + ' pieces', 'success');
+    })
+    .catch(function(err) {
+      hideLoading();
+      showToast('Failed to split position: ' + err.message, 'error');
+    });
 }

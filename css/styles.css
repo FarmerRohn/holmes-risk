@@ -1063,6 +1063,25 @@ textarea.form-input {
   color: var(--text3);
 }
 
+/* ==================== CONTRACT ROLLING ==================== */
+
+.grain-roll-info {
+  font-size: 13px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.grain-roll-preview {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
 /* ==================== POSITIONS PAGE ==================== */
 
 .pos-side {
@@ -1158,4 +1177,137 @@ textarea.form-input {
   color: var(--text2);
   text-transform: uppercase;
   letter-spacing: 0.3px;
+}
+
+/* ==================== OPTION EXERCISE ==================== */
+
+.pos-status-exercised {
+  background: rgba(109, 40, 217, 0.12);
+  color: #7c3aed;
+}
+
+.pos-btn-exercise {
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  font-weight: 600;
+}
+
+.pos-btn-exercise:hover {
+  background: var(--amber);
+  color: #fff;
+}
+
+.pos-exercise-info {
+  font-size: 13px;
+  background: var(--amber-dim);
+  border: 1px solid var(--amber);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.pos-exercise-preview-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 8px 0 6px;
+}
+
+.pos-exercise-preview-field {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.pos-exercise-eff {
+  border: 1px solid var(--border);
+}
+
+.pos-badge-exercise {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(109, 40, 217, 0.12);
+  color: #7c3aed;
+}
+
+.pos-badge-exercised {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+/* ==================== POSITION ROLLING ==================== */
+
+.pos-roll-info {
+  font-size: 13px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.pos-roll-section-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 12px 0 6px;
+}
+
+.pos-roll-preview {
+  margin: 12px 0 16px;
+}
+
+.pos-roll-preview-inner {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.pos-roll-preview-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+/* Roll/Split relationship badges */
+
+.pos-badge-rolled {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+.pos-badge-split {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
 }
