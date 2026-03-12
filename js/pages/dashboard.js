@@ -47,11 +47,26 @@ function _renderFuturesStrip() {
 // ---- KPI Cards ----
 
 function _renderKpiCards() {
+  var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
+  var exposure = calcExposure(STATE.contracts, STATE.positions, STATE.settings, cropYear);
+  var pl = calcPL(STATE.contracts, STATE.positions, STATE.settings, STATE.marketPrices);
+  var netDelta = calcNetDelta(STATE.positions);
+
+  var hedgeVal = _dashFmtPct(exposure.totals.hedgePct);
+  var deltaVal = _dashFmtDelta(netDelta) + ' bu';
+  var plVal = _dashFmtDollars(pl.unrealized);
+  var committedVal = _dashFmtNum(exposure.totals.committed) + ' bu';
+
+  // Color unrealized P&L
+  var plCls = 'kpi-pnl';
+  if (pl.unrealized > 0) plCls = 'kpi-pnl kpi-pnl-positive';
+  else if (pl.unrealized < 0) plCls = 'kpi-pnl kpi-pnl-negative';
+
   var kpis = [
-    { label: 'Hedge %',          value: '\u2014%',   icon: _dashIconShield(), cls: 'kpi-hedge' },
-    { label: 'Net Delta',        value: '\u2014 bu',  icon: _dashIconDelta(),  cls: 'kpi-delta' },
-    { label: 'Unrealized P&L',   value: '$\u2014',    icon: _dashIconDollar(), cls: 'kpi-pnl' },
-    { label: 'Total Committed',  value: '\u2014 bu',  icon: _dashIconTruck(),  cls: 'kpi-committed' }
+    { label: 'Hedge %',          value: hedgeVal,      icon: _dashIconShield(), cls: 'kpi-hedge' },
+    { label: 'Net Delta',        value: deltaVal,      icon: _dashIconDelta(),  cls: 'kpi-delta' },
+    { label: 'Unrealized P&L',   value: plVal,         icon: _dashIconDollar(), cls: plCls },
+    { label: 'Total Committed',  value: committedVal,  icon: _dashIconTruck(),  cls: 'kpi-committed' }
   ];
 
   var html = '<div class="kpi-grid">';
@@ -70,12 +85,16 @@ function _renderKpiCards() {
 // ---- Exposure Buckets ----
 
 function _renderExposureBuckets() {
+  var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
+  var exposure = calcExposure(STATE.contracts, STATE.positions, STATE.settings, cropYear);
+  var t = exposure.totals;
+
   var buckets = [
-    { label: 'Priced Open',    value: '\u2014 bu' },
-    { label: 'Basis Open',     value: '\u2014 bu' },
-    { label: 'Sold/Delivered', value: '\u2014 bu' },
-    { label: 'Unpriced',       value: '\u2014 bu' },
-    { label: 'Options \u0394 Bu', value: '\u2014 bu' }
+    { label: 'Priced Open',    value: _dashFmtNum(t.pricedOpen) + ' bu' },
+    { label: 'Basis Open',     value: _dashFmtNum(t.basisOpen) + ' bu' },
+    { label: 'Sold/Delivered', value: _dashFmtNum(t.soldDelivered) + ' bu' },
+    { label: 'Unpriced',       value: _dashFmtNum(t.unpriced) + ' bu' },
+    { label: 'Options \u0394 Bu', value: _dashFmtDelta(t.optionsDeltaBu) + ' bu' }
   ];
 
   var html = '<div class="exposure-grid">';
@@ -84,6 +103,50 @@ function _renderExposureBuckets() {
     html += '<div class="exposure-card">' +
       '<div class="exposure-value">' + b.value + '</div>' +
       '<div class="exposure-label">' + esc(b.label) + '</div>' +
+    '</div>';
+  }
+  html += '</div>';
+
+  // Per-commodity breakdown
+  html += _renderCommodityBreakdown(exposure);
+
+  return html;
+}
+
+// ---- Per-commodity exposure breakdown ----
+
+function _renderCommodityBreakdown(exposure) {
+  var commodities = Object.keys(exposure.byCommodity);
+  if (commodities.length === 0) return '';
+
+  // Sort alphabetically
+  commodities.sort();
+
+  var html = '<div class="commodity-breakdown">';
+  for (var i = 0; i < commodities.length; i++) {
+    var comm = commodities[i];
+    var data = exposure.byCommodity[comm];
+    var color = COMMODITY_COLORS[comm] || 'var(--text)';
+    var hedgePct = data.hedgePct;
+    var clampedPct = Math.min(Math.max(hedgePct, 0), 100);
+
+    // Hedge color: <50% red, 50-80% amber, >80% green
+    var hedgeColor = 'var(--red)';
+    if (hedgePct > 80) hedgeColor = 'var(--green)';
+    else if (hedgePct >= 50) hedgeColor = 'var(--amber)';
+
+    html += '<div class="commodity-row">' +
+      '<div class="commodity-row-header">' +
+        '<span class="commodity-row-name" style="color:' + color + '">' + esc(comm) + '</span>' +
+        '<span class="commodity-row-hedge" style="color:' + hedgeColor + '">' + _dashFmtPct(hedgePct) + '</span>' +
+      '</div>' +
+      '<div class="commodity-row-bar">' +
+        '<div class="commodity-row-bar-fill" style="width:' + clampedPct.toFixed(1) + '%;background:' + hedgeColor + '"></div>' +
+      '</div>' +
+      '<div class="commodity-row-stats">' +
+        '<span>Gross: ' + _dashFmtNum(data.grossBushels) + ' bu</span>' +
+        '<span>Committed: ' + _dashFmtNum(data.committed) + ' bu</span>' +
+      '</div>' +
     '</div>';
   }
   html += '</div>';
@@ -178,6 +241,38 @@ function _dashFmtPrice(val) {
   var n = parseFloat(val);
   if (isNaN(n)) return '\u2014';
   return n.toFixed(4);
+}
+
+function _dashFmtNum(n) {
+  if (n == null || isNaN(n)) return '\u2014';
+  n = Math.round(n);
+  var abs = Math.abs(n);
+  var str = abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return n < 0 ? '-' + str : str;
+}
+
+function _dashFmtDollars(n) {
+  if (n == null || isNaN(n)) return '\u2014';
+  n = Math.round(n);
+  var abs = Math.abs(n);
+  var str = abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  if (n < 0) return '($' + str + ')';
+  return '$' + str;
+}
+
+function _dashFmtPct(n) {
+  if (n == null || isNaN(n)) return '\u2014';
+  return n.toFixed(1) + '%';
+}
+
+function _dashFmtDelta(n) {
+  if (n == null || isNaN(n)) return '\u2014';
+  n = Math.round(n);
+  var abs = Math.abs(n);
+  var str = abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  if (n > 0) return '+' + str;
+  if (n < 0) return '-' + str;
+  return '0';
 }
 
 // ---- SVG Icons ----
