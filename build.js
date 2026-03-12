@@ -166,6 +166,10 @@ async function build() {
         'posSavePosition', 'posOnTypeChange', 'posOnStatusChange',
         'posOnCommodityChange', 'posToggleRow', 'posUpdatePnlPreview',
         'posCalcGreeks', 'posOpenExerciseModal', 'posConfirmExercise',
+        // Positions page — roll functions
+        'posOpenRollModal', 'posConfirmRoll', '_posRollUpdatePreview',
+        // Positions page — split functions
+        'posOpenSplitModal', 'posConfirmSplit', '_posSplitRenderPieces', '_posSplitUpdateTotal',
         // Settings page functions
         'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators'
       ]
