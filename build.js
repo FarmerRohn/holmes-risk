@@ -159,6 +159,8 @@ async function build() {
         'grainOpenHedgeModal', 'grainSaveHedge', 'grainDeleteHedge',
         // Grain page — contract roll functions
         'grainOpenRollModal', 'grainSaveRoll', '_grainUpdateRollPreview',
+        // Grain page — contract split functions
+        'grainOpenSplitModal', '_grainSplitRenderPieces', '_grainSplitUpdateTotal', '_grainSplitSave',
         // Positions page functions
         'posOpenPositionModal', 'posDeletePosition', 'posApplyFilter',
         'posSavePosition', 'posOnTypeChange', 'posOnStatusChange',

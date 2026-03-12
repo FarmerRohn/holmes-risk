@@ -211,6 +211,8 @@ function _grainRenderTable(contracts) {
         '<button class="btn btn-secondary btn-sm" onclick="grainOpenContractModal(\'' + escapeAttr(id) + '\')">Edit</button> ' +
         (c.status === 'Open' && (c.contractType === 'HTA' || c.contractType === 'Basis') ?
           '<button class="btn btn-secondary btn-sm" onclick="grainOpenRollModal(\'' + escapeAttr(id) + '\')">Roll</button> ' : '') +
+        (c.status === 'Open' ?
+          '<button class="btn btn-secondary btn-sm" onclick="grainOpenSplitModal(\'' + escapeAttr(id) + '\')">Split</button> ' : '') +
         '<button class="btn btn-danger btn-sm" onclick="grainDeleteContract(\'' + escapeAttr(id) + '\')">Delete</button>' +
       '</td>' +
     '</tr>';
@@ -241,6 +243,35 @@ function _grainRenderDetailPanel(c) {
   if (c.premium != null) parts.push('<strong>Premium:</strong> ' + _grainFmtPrice(c.premium));
   if (c.rollCount != null && parseInt(c.rollCount) > 0) parts.push('<strong>Roll Count:</strong> ' + esc(c.rollCount));
   if (c.notes) parts.push('<strong>Notes:</strong> ' + esc(c.notes));
+
+  // Split relationship info
+  if (c.splitFromId) {
+    var parentContract = null;
+    for (var pi = 0; pi < STATE.contracts.length; pi++) {
+      if (STATE.contracts[pi].id === c.splitFromId) {
+        parentContract = STATE.contracts[pi];
+        break;
+      }
+    }
+    if (parentContract) {
+      parts.push('<strong>Split from:</strong> ' + esc(parentContract.commodity) + ' ' +
+        esc(parentContract.contractType) + ' ' + _grainFmtBushels(parentContract.bushels) + ' bu' +
+        (parentContract.contractNumber ? ' (#' + esc(parentContract.contractNumber) + ')' : ''));
+    } else {
+      parts.push('<strong>Split from:</strong> (parent contract)');
+    }
+  }
+  if (c.status === 'Split') {
+    var childCount = 0;
+    for (var sci = 0; sci < STATE.contracts.length; sci++) {
+      if (STATE.contracts[sci].splitFromId === c.id) {
+        childCount++;
+      }
+    }
+    if (childCount > 0) {
+      parts.push('<strong>Split into:</strong> ' + childCount + ' contract' + (childCount !== 1 ? 's' : ''));
+    }
+  }
 
   var detailHtml;
   if (parts.length === 0) {
@@ -1180,4 +1211,254 @@ function _grainBuildUniqueDatalist(contracts, field) {
     }
   }
   return html;
+}
+
+// ==================== CONTRACT SPLITTING ====================
+
+function grainOpenSplitModal(contractId) {
+  var c = null;
+  for (var i = 0; i < STATE.contracts.length; i++) {
+    if (STATE.contracts[i].id === contractId) {
+      c = STATE.contracts[i];
+      break;
+    }
+  }
+  if (!c) { showToast('Contract not found', 'error'); return; }
+
+  var totalBu = parseFloat(c.bushels) || 0;
+
+  // Build price display
+  var priceStr = '\u2014';
+  if (c.cashPrice != null) priceStr = _grainFmtPrice(c.cashPrice);
+  else if (c.futuresPrice != null) priceStr = _grainFmtPrice(c.futuresPrice) + ' F';
+  else if (c.basisLevel != null) priceStr = 'Basis ' + _grainFmtPrice(c.basisLevel);
+
+  // Elevator datalist
+  var elevatorDl = '<datalist id="dlSplitElevators">' + _grainBuildElevatorDatalist() + '</datalist>';
+
+  var html = '<h2 class="modal-title">Split Contract</h2>' +
+    elevatorDl +
+    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">' +
+      '<div style="font-weight:700;color:var(--text)">' +
+        esc(c.commodity) + ' \u2014 ' + esc(c.contractType) + ' \u2014 ' +
+        _grainFmtBushels(totalBu) + ' bu @ ' + priceStr +
+      '</div>' +
+      '<div style="font-size:0.82rem;color:var(--text3);margin-top:4px">' +
+        (c.buyerName ? esc(c.buyerName) + ' \u00B7 ' : '') +
+        (c.deliveryDate || 'No delivery date') +
+        (c.account ? ' \u00B7 ' + esc(c.account) : '') +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:10px;margin:8px 0">' +
+      '<label style="font-size:0.85rem;font-weight:600;color:var(--text2);white-space:nowrap">Split into</label>' +
+      '<select class="form-select" id="gsSplitCount" style="width:auto" onchange="_grainSplitRenderPieces(\'' + escapeAttr(contractId) + '\',' + totalBu + ')">' +
+        '<option value="2" selected>2 pieces</option>' +
+        '<option value="3">3 pieces</option>' +
+        '<option value="4">4 pieces</option>' +
+        '<option value="5">5 pieces</option>' +
+        '<option value="6">6 pieces</option>' +
+      '</select>' +
+    '</div>' +
+    '<div id="gsSplitPiecesWrap"></div>' +
+    '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg2);border-radius:6px;font-size:0.85rem;margin:8px 0">' +
+      '<span style="color:var(--text3)">Total:</span>' +
+      '<span id="gsSplitTotalDisplay" style="font-weight:700;color:var(--text)">0</span>' +
+      '<span style="color:var(--text3)">/ ' + _grainFmtBushels(totalBu) + ' bu</span>' +
+      '<span id="gsSplitTotalStatus" style="margin-left:4px"></span>' +
+    '</div>' +
+    '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="button" class="btn btn-primary" onclick="_grainSplitSave(\'' + escapeAttr(contractId) + '\',' + totalBu + ')">Confirm Split</button>' +
+    '</div>';
+
+  showModal(html);
+
+  // Render pieces after modal is in the DOM
+  setTimeout(function() { _grainSplitRenderPieces(contractId, totalBu); }, 50);
+}
+
+function _grainSplitRenderPieces(contractId, totalBu) {
+  var c = null;
+  for (var i = 0; i < STATE.contracts.length; i++) {
+    if (STATE.contracts[i].id === contractId) {
+      c = STATE.contracts[i];
+      break;
+    }
+  }
+  if (!c) return;
+
+  var countEl = document.getElementById('gsSplitCount');
+  var n = countEl ? parseInt(countEl.value) : 2;
+  var even = Math.floor(totalBu / n);
+  var html = '';
+
+  for (var i = 0; i < n; i++) {
+    var suggested = (i === n - 1) ? totalBu - even * (n - 1) : even;
+    html += '<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;background:var(--bg1)">' +
+      '<div style="font-size:0.82rem;font-weight:700;color:var(--primary);margin-bottom:8px">Piece ' + (i + 1) + '</div>' +
+      '<div class="grain-modal-grid">' +
+        '<div class="form-group">' +
+          '<label class="form-label">Bushels *</label>' +
+          '<input type="number" class="form-input" id="gsSplitBu' + i + '" min="0.01" step="1" value="' + suggested + '" oninput="_grainSplitUpdateTotal(' + totalBu + ')">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Buyer / Elevator</label>' +
+          '<input type="text" class="form-input" id="gsSplitElev' + i + '" value="' + escapeAttr(c.buyerName || '') + '" list="dlSplitElevators">' +
+        '</div>' +
+      '</div>' +
+      '<div class="grain-modal-grid">' +
+        '<div class="form-group">' +
+          '<label class="form-label">Delivery Date</label>' +
+          '<input type="date" class="form-input" id="gsSplitDate' + i + '" value="' + escapeAttr(c.deliveryDate || '') + '">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Contract # Suffix</label>' +
+          '<input type="text" class="form-input" id="gsSplitCnum' + i + '" placeholder="e.g. -A" style="max-width:120px">' +
+        '</div>' +
+      '</div>' +
+      '<div class="form-group">' +
+        '<label class="form-label">Notes</label>' +
+        '<input type="text" class="form-input" id="gsSplitNotes' + i + '" placeholder="">' +
+      '</div>' +
+    '</div>';
+  }
+
+  var wrap = document.getElementById('gsSplitPiecesWrap');
+  if (wrap) wrap.innerHTML = html;
+
+  _grainSplitUpdateTotal(totalBu);
+}
+
+function _grainSplitUpdateTotal(totalBu) {
+  var countEl = document.getElementById('gsSplitCount');
+  var n = countEl ? parseInt(countEl.value) : 2;
+  var sum = 0;
+  for (var i = 0; i < n; i++) {
+    var el = document.getElementById('gsSplitBu' + i);
+    sum += el ? (parseFloat(el.value) || 0) : 0;
+  }
+  var disp = document.getElementById('gsSplitTotalDisplay');
+  var stat = document.getElementById('gsSplitTotalStatus');
+
+  if (disp) disp.textContent = _grainFmtBushels(sum) + ' bu';
+
+  if (stat) {
+    var diff = Math.round(sum) - Math.round(totalBu);
+    if (diff === 0) {
+      stat.textContent = '\u2713 Balanced';
+      stat.style.color = 'var(--green, #166534)';
+    } else if (diff < 0) {
+      stat.textContent = _grainFmtBushels(Math.abs(diff)) + ' bu remaining';
+      stat.style.color = 'var(--yellow, #d97706)';
+    } else {
+      stat.textContent = _grainFmtBushels(diff) + ' bu over';
+      stat.style.color = 'var(--red, #c53030)';
+    }
+  }
+}
+
+function _grainSplitSave(contractId, totalBu) {
+  var c = null;
+  for (var i = 0; i < STATE.contracts.length; i++) {
+    if (STATE.contracts[i].id === contractId) {
+      c = STATE.contracts[i];
+      break;
+    }
+  }
+  if (!c) { showToast('Contract not found', 'error'); return; }
+
+  var countEl = document.getElementById('gsSplitCount');
+  var n = countEl ? parseInt(countEl.value) : 2;
+
+  // Validate sum
+  var sum = 0;
+  for (var i = 0; i < n; i++) {
+    var el = document.getElementById('gsSplitBu' + i);
+    sum += el ? (parseFloat(el.value) || 0) : 0;
+  }
+  if (Math.round(sum) !== Math.round(totalBu)) {
+    showToast('Pieces must sum to ' + _grainFmtBushels(totalBu) + ' bu \u2014 currently ' + _grainFmtBushels(sum) + ' bu', 'error');
+    return;
+  }
+
+  // Validate each piece > 0
+  for (var i = 0; i < n; i++) {
+    var buEl = document.getElementById('gsSplitBu' + i);
+    if (!buEl || (parseFloat(buEl.value) || 0) <= 0) {
+      showToast('Piece ' + (i + 1) + ' must have bushels > 0', 'error');
+      return;
+    }
+  }
+
+  // Collect piece data
+  var pieces = [];
+  for (var i = 0; i < n; i++) {
+    var bu = parseFloat(document.getElementById('gsSplitBu' + i).value);
+    var elevEl = document.getElementById('gsSplitElev' + i);
+    var elev = elevEl ? (elevEl.value || '').trim() : '';
+    var dateEl = document.getElementById('gsSplitDate' + i);
+    var delivDate = dateEl ? (dateEl.value || '') : '';
+    var cnumEl = document.getElementById('gsSplitCnum' + i);
+    var cnumSuffix = cnumEl ? (cnumEl.value || '').trim() : '';
+    var notesEl = document.getElementById('gsSplitNotes' + i);
+    var notes = notesEl ? (notesEl.value || '').trim() : '';
+
+    pieces.push({
+      bushels: bu,
+      buyerName: elev || c.buyerName || null,
+      deliveryDate: delivDate || c.deliveryDate || null,
+      deliveryDateEnd: c.deliveryDateEnd || null,
+      contractNumber: c.contractNumber ? c.contractNumber + cnumSuffix : (cnumSuffix || null),
+      notes: notes || null,
+      // Inherited from parent
+      commodity: c.commodity,
+      cropYear: c.cropYear,
+      contractType: c.contractType,
+      cashPrice: c.cashPrice,
+      futuresPrice: c.futuresPrice,
+      basisLevel: c.basisLevel,
+      futuresMonth: c.futuresMonth,
+      strategy: c.strategy,
+      company: c.company,
+      account: c.account,
+      splitFromId: contractId,
+      status: 'Open'
+    });
+  }
+
+  // Save all children, then update parent
+  showLoading();
+  var childPromises = [];
+  for (var i = 0; i < pieces.length; i++) {
+    childPromises.push(createRiskContractDB(pieces[i]));
+  }
+
+  Promise.all(childPromises)
+    .then(function(children) {
+      // Add children to STATE
+      for (var j = 0; j < children.length; j++) {
+        STATE.contracts.push(children[j]);
+      }
+
+      // Update parent status to 'Split'
+      return updateRiskContractDB(contractId, { status: 'Split' });
+    })
+    .then(function(updatedParent) {
+      // Update parent in STATE
+      for (var k = 0; k < STATE.contracts.length; k++) {
+        if (STATE.contracts[k].id === contractId) {
+          STATE.contracts[k] = updatedParent;
+          break;
+        }
+      }
+
+      hideLoading();
+      closeModal();
+      renderApp();
+      showToast('Contract split into ' + n + ' pieces', 'success');
+    })
+    .catch(function(err) {
+      hideLoading();
+      showToast('Failed to split contract: ' + err.message, 'error');
+    });
 }
