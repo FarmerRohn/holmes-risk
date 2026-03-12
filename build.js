@@ -184,6 +184,10 @@ async function build() {
         'docOpenUploadModal', 'docUpload', 'docDelete', '_docToggleParsed',
         // Market page functions
         'marketSelectCommodity', 'marketRefresh',
+        // Inventory page functions
+        'inventoryOpenCropModal', 'inventorySaveCrop', 'inventoryDeleteCrop',
+        'inventoryOpenBinModal', 'inventorySaveBin', 'inventoryDeleteBin',
+        'inventorySwitchTab', 'inventoryCalcExpected',
         // Basis page functions
         'basisSelectCommodity', 'basisRefresh'
       ]

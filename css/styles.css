@@ -1641,3 +1641,52 @@ textarea.form-input {
 .doc-file-input::file-selector-button:hover {
   background: var(--border);
 }
+
+/* ==================== INVENTORY PAGE ==================== */
+
+.inv-subtab-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+
+.inv-subtab {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.inv-subtab:hover {
+  color: var(--text);
+}
+
+.inv-subtab-active {
+  background: var(--surface2);
+  color: var(--green);
+}
+
+.inv-summary-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.inv-row:hover td {
+  background: var(--surface2);
+}
+
+@media (max-width: 480px) {
+  .inv-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
