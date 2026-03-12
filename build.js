@@ -103,6 +103,9 @@ async function build() {
         'COMMODITY_COLORS', 'FUTURES_MONTHS', 'MONTH_NAMES',
         'DEFAULT_COMMODITIES', 'DEFAULT_BUSHELS_PER_CONTRACT', 'DEFAULT_UNIT_LABELS',
         'TAB_CONFIG',
+        // Greeks engine
+        'normCDF', 'normPDF', 'black76Greeks', 'impliedVol', 'symbolToExpiry',
+        'MONTH_CODES',
         // UI utilities
         'esc', 'escapeAttr', 'showToast', 'showLoading', 'hideLoading',
         'showModal', 'closeModal', 'toggleTheme',
@@ -119,8 +122,10 @@ async function build() {
         'fetchRiskContractsDB', 'createRiskContractDB', 'updateRiskContractDB', 'deleteRiskContractDB',
         // DB functions — positions
         'fetchRiskPositionsDB', 'createRiskPositionDB', 'updateRiskPositionDB', 'deleteRiskPositionDB',
-        // DB functions — elevator hedges
+        // DB functions — elevator hedges (nested under contracts)
         'fetchElevatorHedgesDB', 'createElevatorHedgeDB', 'updateElevatorHedgeDB', 'deleteElevatorHedgeDB',
+        // DB functions — contract rolls
+        'fetchContractRollsDB', 'createContractRollDB',
         // DB functions — deliveries
         'fetchRiskDeliveriesDB', 'createRiskDeliveryDB', 'updateRiskDeliveryDB', 'deleteRiskDeliveryDB',
         // DB functions — documents
