@@ -527,6 +527,261 @@ textarea.form-input {
 .color-wheat { color: #c2956c; }
 .color-oil { color: var(--blue); }
 
+/* ==================== DASHBOARD ==================== */
+
+/* Futures price strip */
+.futures-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 24px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.futures-strip::-webkit-scrollbar { display: none; }
+
+.futures-strip-empty {
+  width: 100%;
+  text-align: center;
+  padding: 16px;
+  color: var(--text3);
+  font-size: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.futures-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.futures-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.futures-chip-price {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+/* Dashboard section labels */
+.dash-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* KPI cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpi-icon {
+  color: var(--text3);
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.kpi-hedge .kpi-value { color: var(--green); }
+.kpi-delta .kpi-value { color: var(--blue); }
+.kpi-pnl .kpi-value { color: var(--amber); }
+.kpi-committed .kpi-value { color: var(--text); }
+
+/* Exposure buckets */
+.exposure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.exposure-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+}
+
+.exposure-value {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--mono);
+  color: var(--text2);
+}
+
+.exposure-label {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Quick stats row */
+.quick-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.quick-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.quick-stat-icon {
+  color: var(--text3);
+  flex-shrink: 0;
+}
+
+.quick-stat-content {
+  min-width: 0;
+}
+
+.quick-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.quick-stat-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==================== SETTINGS ==================== */
+
+.settings-page {
+  max-width: 640px;
+}
+
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.settings-section-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.settings-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.settings-section-body {
+  padding: 16px;
+}
+
+.settings-hint {
+  font-size: 13px;
+  color: var(--text3);
+  line-height: 1.5;
+}
+
+.settings-input-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.settings-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-input-row .form-label {
+  margin-bottom: 0;
+}
+
+.settings-input-row .form-input {
+  max-width: 200px;
+}
+
+/* Commodity chips */
+.commodity-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.commodity-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border: 1px solid;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 /* ==================== RESPONSIVE ==================== */
 @media (min-width: 768px) {
   .stats-grid {
@@ -537,6 +792,18 @@ textarea.form-input {
     max-width: 1200px;
     margin: 0 auto;
     padding: 32px 24px 100px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .exposure-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .settings-input-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

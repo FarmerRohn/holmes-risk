@@ -141,7 +141,11 @@ async function build() {
         'renderDashboardPage', 'renderGrainPage', 'renderPositionsPage',
         'renderDeliveriesPage', 'renderBasisPage', 'renderInputsPage',
         'renderInventoryPage', 'renderMarketPage', 'renderDocumentsPage',
-        'renderPnlPage', 'renderSettingsPage'
+        'renderPnlPage', 'renderSettingsPage',
+        // Dashboard page functions
+        'dashboardRefreshPrices',
+        // Settings page functions
+        'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators'
       ]
     },
     output: {
