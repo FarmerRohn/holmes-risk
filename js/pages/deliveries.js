@@ -8,15 +8,17 @@ var MOISTURE_TARGETS = { Corn: 15.0, Soybeans: 13.0, Wheat: 13.5, 'Heating Oil':
 
 // ---- Main page renderer ----
 
-function renderDeliveriesPage() {
+function _deliveryRenderContent() {
   var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
   var deliveries = _deliveryFilterList(STATE.deliveries || [], cropYear);
 
-  return '<div class="page-content">' +
-    _deliveryRenderToolbar(cropYear) +
+  return _deliveryRenderToolbar(cropYear) +
     _deliveryRenderSummary(deliveries) +
-    _deliveryRenderTable(deliveries) +
-  '</div>';
+    _deliveryRenderTable(deliveries);
+}
+
+function renderDeliveriesPage() {
+  return '<div class="page-content">' + _deliveryRenderContent() + '</div>';
 }
 
 // ---- Toolbar ----

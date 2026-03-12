@@ -17,13 +17,51 @@ var _grainContractHedges = {};
 // Cache for contract rolls (keyed by contractId)
 var _grainContractRolls = {};
 
+// Sub-tab state: 'contracts', 'positions', 'deliveries', 'basis'
+var _grainSubTab = 'contracts';
+
+// ---- Sub-tab bar ----
+
+function _grainRenderSubTabBar() {
+  var tabs = [
+    { id: 'contracts',  label: 'Contracts' },
+    { id: 'positions',  label: 'Positions' },
+    { id: 'deliveries', label: 'Deliveries' },
+    { id: 'basis',      label: 'Basis' }
+  ];
+  var html = '<div class="grain-subtab-bar">';
+  for (var i = 0; i < tabs.length; i++) {
+    var active = _grainSubTab === tabs[i].id ? ' grain-subtab-active' : '';
+    html += '<button class="grain-subtab' + active + '" onclick="grainSwitchSubTab(\'' + tabs[i].id + '\')">' + esc(tabs[i].label) + '</button>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function grainSwitchSubTab(tab) {
+  _grainSubTab = tab;
+  renderApp();
+}
+
 // ---- Main page renderer ----
 
 function renderGrainPage() {
+  var subTabBar = _grainRenderSubTabBar();
+
+  switch (_grainSubTab) {
+    case 'positions':  return '<div class="page-content">' + subTabBar + _posRenderContent() + '</div>';
+    case 'deliveries': return '<div class="page-content">' + subTabBar + _deliveryRenderContent() + '</div>';
+    case 'basis':      return '<div class="page-content">' + subTabBar + _basisRenderContent() + '</div>';
+    default:           return _grainRenderContractsView(subTabBar);
+  }
+}
+
+function _grainRenderContractsView(subTabBar) {
   var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
   var contracts = _grainFilterContracts(STATE.contracts || [], cropYear);
 
   return '<div class="page-content">' +
+    subTabBar +
     _grainRenderToolbar(cropYear) +
     _grainRenderContractList(contracts) +
   '</div>';

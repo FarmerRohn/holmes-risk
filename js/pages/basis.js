@@ -8,12 +8,11 @@ var _basisLoading = false;
 
 // ---- Main page renderer ----
 
-function renderBasisPage() {
+function _basisRenderContent() {
   // Kick off data fetch (will update DOM when done)
   _basisFetchAll(_basisSelectedCommodity);
 
-  return '<div class="page-content">' +
-    '<div class="section-header">' +
+  return '<div class="section-header">' +
       '<h2 class="section-title">Basis Analysis</h2>' +
       '<button class="btn btn-secondary btn-sm" onclick="basisRefresh()">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>' +
@@ -29,8 +28,11 @@ function renderBasisPage() {
     '</div>' +
     '<div id="basisHistoryContainer">' +
       _basisRenderHistorySection() +
-    '</div>' +
-  '</div>';
+    '</div>';
+}
+
+function renderBasisPage() {
+  return '<div class="page-content">' + _basisRenderContent() + '</div>';
 }
 
 // ---- Commodity Selector ----

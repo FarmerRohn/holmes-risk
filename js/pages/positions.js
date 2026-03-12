@@ -11,14 +11,16 @@ var _posExpandedRows = {};
 
 // ---- Main page renderer ----
 
-function renderPositionsPage() {
+function _posRenderContent() {
   var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
   var positions = _posFilterPositions(STATE.positions || [], cropYear);
 
-  return '<div class="page-content">' +
-    _posRenderToolbar(cropYear) +
-    _posRenderPositionList(positions) +
-  '</div>';
+  return _posRenderToolbar(cropYear) +
+    _posRenderPositionList(positions);
+}
+
+function renderPositionsPage() {
+  return '<div class="page-content">' + _posRenderContent() + '</div>';
 }
 
 // ---- Toolbar ----

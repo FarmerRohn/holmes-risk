@@ -155,6 +155,7 @@ async function build() {
         // Dashboard page functions
         'dashboardRefreshPrices',
         // Grain page functions
+        'grainSwitchSubTab',
         'grainOpenContractModal', 'grainDeleteContract', 'grainApplyFilter',
         'grainSaveContract', 'grainOnTypeChange', 'grainToggleRow',
         // Grain page — elevator hedge functions
