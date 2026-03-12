@@ -177,7 +177,9 @@ async function build() {
         // Price log functions
         'priceLogOpenModal', 'priceLogSave', 'priceLogFilterChange',
         // Market page functions
-        'marketSelectCommodity', 'marketRefresh'
+        'marketSelectCommodity', 'marketRefresh',
+        // Basis page functions
+        'basisSelectCommodity', 'basisRefresh'
       ]
     },
     output: {

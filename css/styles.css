@@ -1401,3 +1401,118 @@ textarea.form-input {
 .market-change-neg {
   color: var(--red);
 }
+
+/* ==================== BASIS PAGE ==================== */
+
+.basis-section {
+  margin-bottom: 24px;
+}
+
+.basis-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.basis-table {
+  font-size: 13px;
+}
+
+.basis-table th {
+  white-space: nowrap;
+}
+
+.basis-mono {
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.basis-meta {
+  font-size: 12px;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+.basis-positive {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.basis-negative {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.basis-stronger {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.basis-weaker {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* Elevator basis cards */
+.basis-elevator-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.basis-elevator-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.basis-elevator-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.basis-elevator-data {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.basis-elevator-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.basis-elevator-label {
+  font-size: 12px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.basis-elevator-value {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.basis-elevator-placeholder {
+  font-size: 13px;
+  color: var(--text3);
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .basis-elevator-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .basis-elevator-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
