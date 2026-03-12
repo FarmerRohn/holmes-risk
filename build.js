@@ -155,6 +155,8 @@ async function build() {
         // Grain page functions
         'grainOpenContractModal', 'grainDeleteContract', 'grainApplyFilter',
         'grainSaveContract', 'grainOnTypeChange', 'grainToggleRow',
+        // Grain page — elevator hedge functions
+        'grainOpenHedgeModal', 'grainSaveHedge', 'grainDeleteHedge',
         // Positions page functions
         'posOpenPositionModal', 'posDeletePosition', 'posApplyFilter',
         'posSavePosition', 'posOnTypeChange', 'posOnStatusChange',

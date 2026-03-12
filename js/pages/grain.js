@@ -11,6 +11,9 @@ var _grainFilters = {
 // Track which contract rows are expanded
 var _grainExpandedRows = {};
 
+// Cache for elevator hedges (keyed by contractId)
+var _grainContractHedges = {};
+
 // ---- Main page renderer ----
 
 function renderGrainPage() {
@@ -234,11 +237,287 @@ function _grainRenderDetailPanel(c) {
   if (c.rollCount != null && parseInt(c.rollCount) > 0) parts.push('<strong>Roll Count:</strong> ' + esc(c.rollCount));
   if (c.notes) parts.push('<strong>Notes:</strong> ' + esc(c.notes));
 
+  var detailHtml;
   if (parts.length === 0) {
-    return '<div class="grain-detail-inner"><span style="color:var(--text3)">No additional details</span></div>';
+    detailHtml = '<div class="grain-detail-inner"><span style="color:var(--text3)">No additional details</span></div>';
+  } else {
+    detailHtml = '<div class="grain-detail-inner">' + parts.join('<span class="grain-detail-sep">&middot;</span>') + '</div>';
   }
 
-  return '<div class="grain-detail-inner">' + parts.join('<span class="grain-detail-sep">&middot;</span>') + '</div>';
+  // Elevator hedges section
+  detailHtml += _grainRenderHedgesSection(c.id);
+
+  // Trigger async load if not yet cached
+  if (!_grainContractHedges[c.id]) {
+    _grainLoadHedges(c.id);
+  }
+
+  return detailHtml;
+}
+
+// ---- Elevator Hedges Section ----
+
+function _grainLoadHedges(contractId) {
+  fetchElevatorHedgesDB(contractId)
+    .then(function(hedges) {
+      _grainContractHedges[contractId] = hedges || [];
+      // Re-render only the hedges container for this contract
+      var container = document.getElementById('hedges-' + contractId);
+      if (container) {
+        container.innerHTML = _grainRenderHedgesContent(contractId);
+      }
+    })
+    .catch(function(err) {
+      _grainContractHedges[contractId] = [];
+      var container = document.getElementById('hedges-' + contractId);
+      if (container) {
+        container.innerHTML = '<span style="color:var(--red);font-size:13px">Failed to load hedges: ' + esc(err.message) + '</span>';
+      }
+    });
+}
+
+function _grainRenderHedgesSection(contractId) {
+  return '<div class="hedge-section">' +
+    '<div class="hedge-section-header">' +
+      '<span class="hedge-section-title">Elevator Hedges</span>' +
+      '<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); grainOpenHedgeModal(\'' + escapeAttr(contractId) + '\')">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+        ' Add Hedge' +
+      '</button>' +
+    '</div>' +
+    '<div id="hedges-' + escapeAttr(contractId) + '">' +
+      _grainRenderHedgesContent(contractId) +
+    '</div>' +
+  '</div>';
+}
+
+function _grainRenderHedgesContent(contractId) {
+  var hedges = _grainContractHedges[contractId];
+
+  // Not yet loaded
+  if (!hedges) {
+    return '<span style="color:var(--text3);font-size:13px">Loading hedges...</span>';
+  }
+
+  if (hedges.length === 0) {
+    return '<span style="color:var(--text3);font-size:13px">No elevator hedges</span>';
+  }
+
+  var html = '<div class="table-wrap"><table class="hedge-table">' +
+    '<thead><tr>' +
+      '<th>Type</th>' +
+      '<th>Symbol</th>' +
+      '<th style="text-align:right">Strike</th>' +
+      '<th style="text-align:right">Contracts</th>' +
+      '<th style="text-align:right">Entry</th>' +
+      '<th style="text-align:right">Current</th>' +
+      '<th style="text-align:right">Delta</th>' +
+      '<th style="text-align:right">Theta</th>' +
+      '<th>Status</th>' +
+      '<th>Actions</th>' +
+    '</tr></thead>' +
+    '<tbody>';
+
+  for (var i = 0; i < hedges.length; i++) {
+    var h = hedges[i];
+    var statusClass = h.status === 'Open' ? 'grain-status-open' : 'hedge-status-closed';
+
+    html += '<tr>' +
+      '<td><span class="hedge-type hedge-type-' + (h.contractType === 'Call' ? 'call' : 'put') + '">' + esc(h.contractType) + '</span></td>' +
+      '<td style="font-family:var(--mono);font-size:12px">' + esc(h.symbol || '') + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtPrice(h.strikePrice) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + (h.contracts != null ? esc(String(h.contracts)) : '\u2014') + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtPrice(h.entryPrice) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtPrice(h.currentPrice) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtGreek(h.delta) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtGreek(h.theta) + '</td>' +
+      '<td><span class="grain-status ' + statusClass + '">' + esc(h.status) + '</span></td>' +
+      '<td class="grain-actions" onclick="event.stopPropagation()">' +
+        '<button class="btn btn-secondary btn-sm" onclick="grainOpenHedgeModal(\'' + escapeAttr(h.contractId) + '\', \'' + escapeAttr(h.id) + '\')">Edit</button> ' +
+        '<button class="btn btn-danger btn-sm" onclick="grainDeleteHedge(\'' + escapeAttr(h.contractId) + '\', \'' + escapeAttr(h.id) + '\')">Delete</button>' +
+      '</td>' +
+    '</tr>';
+  }
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function _grainFmtGreek(n) {
+  if (n == null) return '\u2014';
+  var num = parseFloat(n);
+  if (isNaN(num)) return '\u2014';
+  return num.toFixed(4);
+}
+
+// ---- Hedge Modal ----
+
+function grainOpenHedgeModal(contractId, hedgeId) {
+  var hedge = null;
+  var isEdit = false;
+
+  if (hedgeId) {
+    var hedges = _grainContractHedges[contractId] || [];
+    for (var i = 0; i < hedges.length; i++) {
+      if (hedges[i].id === hedgeId) {
+        hedge = hedges[i];
+        break;
+      }
+    }
+    if (!hedge) { showToast('Hedge not found', 'error'); return; }
+    isEdit = true;
+  }
+
+  var title = isEdit ? 'Edit Elevator Hedge' : 'Add Elevator Hedge';
+  var h = hedge || {};
+
+  // Contract type options (Call/Put)
+  var hedgeTypes = ['Call', 'Put'];
+  var typeOpts = '';
+  for (var ti = 0; ti < hedgeTypes.length; ti++) {
+    var tSel = h.contractType === hedgeTypes[ti] ? ' selected' : '';
+    typeOpts += '<option value="' + escapeAttr(hedgeTypes[ti]) + '"' + tSel + '>' + esc(hedgeTypes[ti]) + '</option>';
+  }
+
+  // Status options
+  var hedgeStatuses = ['Open', 'Closed'];
+  var statOpts = '';
+  var defaultStatus = h.status || 'Open';
+  for (var si = 0; si < hedgeStatuses.length; si++) {
+    var sSel = hedgeStatuses[si] === defaultStatus ? ' selected' : '';
+    statOpts += '<option value="' + escapeAttr(hedgeStatuses[si]) + '"' + sSel + '>' + esc(hedgeStatuses[si]) + '</option>';
+  }
+
+  var formAction = 'grainSaveHedge(event, \'' + escapeAttr(contractId) + '\', ' + (hedgeId ? '\'' + escapeAttr(hedgeId) + '\'' : 'null') + ')';
+
+  var html = '<h2 class="modal-title">' + esc(title) + '</h2>' +
+    '<form id="grainHedgeForm" onsubmit="' + escapeAttr(formAction) + '">' +
+      '<div class="grain-modal-grid">' +
+        '<div class="form-group">' +
+          '<label class="form-label">Contract Type</label>' +
+          '<select class="form-select" id="ghContractType">' + typeOpts + '</select>' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Symbol</label>' +
+          '<input type="text" class="form-input" id="ghSymbol" placeholder="e.g. ZCN26C480" value="' + escapeAttr(h.symbol || '') + '">' +
+        '</div>' +
+
+        '<div class="form-group">' +
+          '<label class="form-label">Strike Price</label>' +
+          '<input type="number" class="form-input" id="ghStrikePrice" step="0.0001" value="' + escapeAttr(h.strikePrice != null ? String(h.strikePrice) : '') + '">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Contracts</label>' +
+          '<input type="number" class="form-input" id="ghContracts" min="0" step="1" value="' + escapeAttr(h.contracts != null ? String(h.contracts) : '') + '">' +
+        '</div>' +
+
+        '<div class="form-group">' +
+          '<label class="form-label">Entry Price</label>' +
+          '<input type="number" class="form-input" id="ghEntryPrice" step="0.0001" value="' + escapeAttr(h.entryPrice != null ? String(h.entryPrice) : '') + '">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Current Price</label>' +
+          '<input type="number" class="form-input" id="ghCurrentPrice" step="0.0001" value="' + escapeAttr(h.currentPrice != null ? String(h.currentPrice) : '') + '">' +
+        '</div>' +
+
+        '<div class="form-group">' +
+          '<label class="form-label">Delta</label>' +
+          '<input type="number" class="form-input" id="ghDelta" step="0.0001" min="-1" max="1" value="' + escapeAttr(h.delta != null ? String(h.delta) : '') + '">' +
+        '</div>' +
+        '<div class="form-group">' +
+          '<label class="form-label">Theta</label>' +
+          '<input type="number" class="form-input" id="ghTheta" step="0.0001" value="' + escapeAttr(h.theta != null ? String(h.theta) : '') + '">' +
+        '</div>' +
+
+        '<div class="form-group">' +
+          '<label class="form-label">Status</label>' +
+          '<select class="form-select" id="ghStatus">' + statOpts + '</select>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="form-group">' +
+        '<label class="form-label">Notes</label>' +
+        '<textarea class="form-input" id="ghNotes" rows="3">' + esc(h.notes || '') + '</textarea>' +
+      '</div>' +
+
+      '<div class="modal-actions">' +
+        '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+        '<button type="submit" class="btn btn-primary">' + (isEdit ? 'Save Changes' : 'Add Hedge') + '</button>' +
+      '</div>' +
+    '</form>';
+
+  showModal(html);
+}
+
+// ---- Hedge Save ----
+
+function grainSaveHedge(e, contractId, hedgeId) {
+  e.preventDefault();
+
+  var data = {
+    contractType: document.getElementById('ghContractType').value,
+    symbol: document.getElementById('ghSymbol').value.trim() || null,
+    strikePrice: _grainParseNum(document.getElementById('ghStrikePrice').value),
+    contracts: _grainParseNum(document.getElementById('ghContracts').value),
+    entryPrice: _grainParseNum(document.getElementById('ghEntryPrice').value),
+    currentPrice: _grainParseNum(document.getElementById('ghCurrentPrice').value),
+    delta: _grainParseNum(document.getElementById('ghDelta').value),
+    theta: _grainParseNum(document.getElementById('ghTheta').value),
+    status: document.getElementById('ghStatus').value,
+    notes: document.getElementById('ghNotes').value.trim() || null
+  };
+
+  if (hedgeId) {
+    // Edit
+    updateElevatorHedgeDB(contractId, hedgeId, data)
+      .then(function(updated) {
+        var hedges = _grainContractHedges[contractId] || [];
+        for (var i = 0; i < hedges.length; i++) {
+          if (hedges[i].id === hedgeId) {
+            hedges[i] = updated;
+            break;
+          }
+        }
+        closeModal();
+        renderApp();
+        showToast('Hedge updated', 'success');
+      })
+      .catch(function(err) {
+        showToast('Failed to update hedge: ' + err.message, 'error');
+      });
+  } else {
+    // Create
+    createElevatorHedgeDB(contractId, data)
+      .then(function(created) {
+        if (!_grainContractHedges[contractId]) {
+          _grainContractHedges[contractId] = [];
+        }
+        _grainContractHedges[contractId].push(created);
+        closeModal();
+        renderApp();
+        showToast('Hedge added', 'success');
+      })
+      .catch(function(err) {
+        showToast('Failed to add hedge: ' + err.message, 'error');
+      });
+  }
+}
+
+// ---- Hedge Delete ----
+
+function grainDeleteHedge(contractId, hedgeId) {
+  if (!confirm('Delete this elevator hedge? This cannot be undone.')) return;
+
+  deleteElevatorHedgeDB(contractId, hedgeId)
+    .then(function() {
+      var hedges = _grainContractHedges[contractId] || [];
+      _grainContractHedges[contractId] = hedges.filter(function(h) { return h.id !== hedgeId; });
+      renderApp();
+      showToast('Hedge deleted', 'success');
+    })
+    .catch(function(err) {
+      showToast('Failed to delete hedge: ' + err.message, 'error');
+    });
 }
 
 function _grainStatusClass(status) {
