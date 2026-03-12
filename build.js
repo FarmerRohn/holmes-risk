@@ -155,6 +155,11 @@ async function build() {
         // Grain page functions
         'grainOpenContractModal', 'grainDeleteContract', 'grainApplyFilter',
         'grainSaveContract', 'grainOnTypeChange', 'grainToggleRow',
+        // Positions page functions
+        'posOpenPositionModal', 'posDeletePosition', 'posApplyFilter',
+        'posSavePosition', 'posOnTypeChange', 'posOnStatusChange',
+        'posOnCommodityChange', 'posToggleRow', 'posUpdatePnlPreview',
+        'posCalcGreeks',
         // Settings page functions
         'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators'
       ]
