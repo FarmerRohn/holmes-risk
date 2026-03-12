@@ -38,6 +38,26 @@ function calcEffectivePrice(contract, latestFuturesQuote) {
       }
       return null;
 
+    case 'Min Price':
+      // effectivePrice = max(strike, latestFutures) + basis - premium
+      if (contract.strikePrice != null && latestFuturesQuote != null) {
+        var strike = parseFloat(contract.strikePrice);
+        var futures = parseFloat(latestFuturesQuote);
+        var basis = contract.basisLevel != null ? parseFloat(contract.basisLevel) : 0;
+        var premium = contract.premium != null ? parseFloat(contract.premium) : 0;
+        return Math.max(strike, futures) + basis - premium;
+      }
+      return null;
+
+    case 'Accumulator':
+      // effectivePrice = strike (floor price) + basis
+      if (contract.strikePrice != null) {
+        var floor = parseFloat(contract.strikePrice);
+        var accBasis = contract.basisLevel != null ? parseFloat(contract.basisLevel) : 0;
+        return floor + accBasis;
+      }
+      return null;
+
     case 'DP':
       return null;
 
@@ -212,7 +232,7 @@ function _calcCommodityExposure(commodity, contracts, positions, settings, cropY
     if (c.status === 'Delivered') {
       soldDelivered += bu;
     } else if (c.status === 'Open') {
-      if (c.contractType === 'Cash' || c.contractType === 'HTA') {
+      if (c.contractType === 'Cash' || c.contractType === 'HTA' || c.contractType === 'Min Price' || c.contractType === 'Accumulator') {
         pricedOpen += bu;
       } else if (c.contractType === 'Basis') {
         basisOpen += bu;

@@ -914,8 +914,10 @@ function grainOpenContractModal(id) {
   var cType = c.contractType || 'HTA';
   var showCash = cType === 'Cash';
   var showFutures = cType === 'HTA';
-  var showBasis = cType === 'HTA' || cType === 'Basis';
-  var showFutMo = cType === 'HTA' || cType === 'Basis';
+  var showBasis = cType === 'HTA' || cType === 'Basis' || cType === 'Min Price' || cType === 'Accumulator';
+  var showFutMo = cType === 'HTA' || cType === 'Basis' || cType === 'Min Price' || cType === 'Accumulator';
+  var showStrike = cType === 'Min Price' || cType === 'Accumulator';
+  var showPremium = cType === 'Min Price';
 
   var html = '<h2 class="modal-title">' + esc(title) + '</h2>' +
     '<form id="grainContractForm" onsubmit="grainSaveContract(event, ' + (id ? '\'' + escapeAttr(id) + '\'' : 'null') + ')">' +
@@ -962,6 +964,18 @@ function grainOpenContractModal(id) {
         '<div class="form-group grain-field-futmo" id="gcFuturesMonthGroup" style="' + (showFutMo ? '' : 'display:none') + '">' +
           '<label class="form-label">Futures Month</label>' +
           '<select class="form-select" id="gcFuturesMonth">' + fmOpts + '</select>' +
+        '</div>' +
+
+        // Strike Price (conditional — Min Price, Accumulator)
+        '<div class="form-group grain-field-strike" id="gcStrikePriceGroup" style="' + (showStrike ? '' : 'display:none') + '">' +
+          '<label class="form-label" id="gcStrikePriceLabel">' + (cType === 'Accumulator' ? 'Accumulator Floor' : 'Floor/Strike') + '</label>' +
+          '<input type="number" class="form-input" id="gcStrikePrice" step="0.0001" value="' + escapeAttr(c.strikePrice != null ? String(c.strikePrice) : '') + '">' +
+        '</div>' +
+
+        // Premium (conditional — Min Price only)
+        '<div class="form-group grain-field-premium" id="gcPremiumGroup" style="' + (showPremium ? '' : 'display:none') + '">' +
+          '<label class="form-label">Premium</label>' +
+          '<input type="number" class="form-input" id="gcPremium" step="0.0001" value="' + escapeAttr(c.premium != null ? String(c.premium) : '') + '">' +
         '</div>' +
 
         // Delivery dates
@@ -1031,6 +1045,9 @@ function grainOnTypeChange(type) {
   var futuresGroup = document.getElementById('gcFuturesPriceGroup');
   var basisGroup = document.getElementById('gcBasisLevelGroup');
   var futMoGroup = document.getElementById('gcFuturesMonthGroup');
+  var strikeGroup = document.getElementById('gcStrikePriceGroup');
+  var premiumGroup = document.getElementById('gcPremiumGroup');
+  var strikeLabel = document.getElementById('gcStrikePriceLabel');
 
   if (!cashGroup || !futuresGroup || !basisGroup || !futMoGroup) return;
 
@@ -1039,6 +1056,8 @@ function grainOnTypeChange(type) {
   futuresGroup.style.display = 'none';
   basisGroup.style.display = 'none';
   futMoGroup.style.display = 'none';
+  if (strikeGroup) strikeGroup.style.display = 'none';
+  if (premiumGroup) premiumGroup.style.display = 'none';
 
   switch (type) {
     case 'Cash':
@@ -1052,6 +1071,19 @@ function grainOnTypeChange(type) {
     case 'Basis':
       basisGroup.style.display = '';
       futMoGroup.style.display = '';
+      break;
+    case 'Min Price':
+      basisGroup.style.display = '';
+      futMoGroup.style.display = '';
+      if (strikeGroup) strikeGroup.style.display = '';
+      if (premiumGroup) premiumGroup.style.display = '';
+      if (strikeLabel) strikeLabel.textContent = 'Floor/Strike';
+      break;
+    case 'Accumulator':
+      basisGroup.style.display = '';
+      futMoGroup.style.display = '';
+      if (strikeGroup) strikeGroup.style.display = '';
+      if (strikeLabel) strikeLabel.textContent = 'Accumulator Floor';
       break;
     // DP and Bushels Only: all price fields hidden
   }
@@ -1072,6 +1104,8 @@ function grainSaveContract(e, id) {
     futuresPrice: _grainParseNum(document.getElementById('gcFuturesPrice').value),
     basisLevel: _grainParseNum(document.getElementById('gcBasisLevel').value),
     futuresMonth: document.getElementById('gcFuturesMonth').value || null,
+    strikePrice: _grainParseNum(document.getElementById('gcStrikePrice').value),
+    premium: _grainParseNum(document.getElementById('gcPremium').value),
     deliveryDate: document.getElementById('gcDeliveryDate').value || null,
     deliveryDateEnd: document.getElementById('gcDeliveryDateEnd').value || null,
     buyerName: document.getElementById('gcBuyerName').value.trim() || null,
@@ -1418,6 +1452,8 @@ function _grainSplitSave(contractId, totalBu) {
       futuresPrice: c.futuresPrice,
       basisLevel: c.basisLevel,
       futuresMonth: c.futuresMonth,
+      strikePrice: c.strikePrice,
+      premium: c.premium,
       strategy: c.strategy,
       company: c.company,
       account: c.account,

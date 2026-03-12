@@ -8,7 +8,7 @@ var CONFIG = {
   API_BASE: '/api'
 };
 
-var CONTRACT_TYPES = ['HTA', 'Cash', 'Basis', 'Bushels Only', 'DP'];
+var CONTRACT_TYPES = ['HTA', 'Cash', 'Basis', 'Bushels Only', 'DP', 'Min Price', 'Accumulator'];
 var CONTRACT_STATUS = ['Open', 'Delivered', 'Cancelled', 'Split'];
 var POSITION_SIDES = ['Long', 'Short'];
 var OPTION_TYPES = ['Call', 'Put'];
