@@ -163,6 +163,10 @@ async function build() {
         'grainOpenRollModal', 'grainSaveRoll', '_grainUpdateRollPreview',
         // Grain page — contract split functions
         'grainOpenSplitModal', '_grainSplitRenderPieces', '_grainSplitUpdateTotal', '_grainSplitSave',
+        // Deliveries page functions
+        'deliveryOpenModal', 'deliverySave', 'deliveryDelete', 'deliveryApplyFilter',
+        'deliveryCalcShrink', 'deliveryOnCommodityChange', 'deliveryOnContractChange',
+        'MOISTURE_TARGETS',
         // Positions page functions
         'posOpenPositionModal', 'posDeletePosition', 'posApplyFilter',
         'posSavePosition', 'posOnTypeChange', 'posOnStatusChange',
