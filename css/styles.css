@@ -1690,3 +1690,74 @@ textarea.form-input {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ==================== INPUTS (FERT) PAGE ==================== */
+
+.fert-summary-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.fert-row:hover td {
+  background: var(--surface2);
+}
+
+.fert-type {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.fert-type-prepay {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.fert-type-forward {
+  background: var(--blue-dim);
+  color: var(--blue);
+}
+
+.fert-type-futures {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.fert-type-options {
+  background: rgba(109, 40, 217, 0.12);
+  color: #7c3aed;
+}
+
+.fert-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.fert-status-open {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.fert-status-delivered {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.fert-status-closed {
+  background: var(--surface3);
+  color: var(--text3);
+}
+
+@media (max-width: 480px) {
+  .fert-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -189,7 +189,10 @@ async function build() {
         'inventoryOpenBinModal', 'inventorySaveBin', 'inventoryDeleteBin',
         'inventorySwitchTab', 'inventoryCalcExpected',
         // Basis page functions
-        'basisSelectCommodity', 'basisRefresh'
+        'basisSelectCommodity', 'basisRefresh',
+        // Inputs (fert) page functions
+        'fertOpenModal', 'fertSave', 'fertDelete', 'fertApplyFilter',
+        'FERT_PRODUCTS', 'FERT_POSITION_TYPES', 'FERT_STATUSES'
       ]
     },
     output: {
