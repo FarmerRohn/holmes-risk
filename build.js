@@ -152,6 +152,9 @@ async function build() {
         'renderPnlPage', 'renderSettingsPage',
         // Dashboard page functions
         'dashboardRefreshPrices',
+        // Grain page functions
+        'grainOpenContractModal', 'grainDeleteContract', 'grainApplyFilter',
+        'grainSaveContract', 'grainOnTypeChange', 'grainToggleRow',
         // Settings page functions
         'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators'
       ]

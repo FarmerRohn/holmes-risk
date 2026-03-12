@@ -1,5 +1,4 @@
 // ==================== HOLMES RISK — REST API LAYER ====================
-// Stub functions for each resource. Will be wired to real endpoints in Phase 1.3.
 
 // ---- Helpers ----
 
@@ -22,7 +21,7 @@ function _riskFetch(path, opts) {
 // ---- Risk Contracts ----
 
 function fetchRiskContractsDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
+  var qs = cropYear ? '?cropYear=' + encodeURIComponent(cropYear) : '';
   return _riskFetch('/risk/contracts' + qs);
 }
 
@@ -31,17 +30,27 @@ function createRiskContractDB(data) {
 }
 
 function updateRiskContractDB(id, data) {
-  return _riskFetch('/risk/contracts/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  return _riskFetch('/risk/contracts/' + id, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
 function deleteRiskContractDB(id) {
   return _riskFetch('/risk/contracts/' + id, { method: 'DELETE' });
 }
 
+// ---- Contract Rolls (nested under /contracts/:id/rolls) ----
+
+function fetchContractRollsDB(contractId) {
+  return _riskFetch('/risk/contracts/' + contractId + '/rolls');
+}
+
+function createContractRollDB(contractId, data) {
+  return _riskFetch('/risk/contracts/' + contractId + '/rolls', { method: 'POST', body: JSON.stringify(data) });
+}
+
 // ---- Risk Positions ----
 
 function fetchRiskPositionsDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
+  var qs = cropYear ? '?cropYear=' + encodeURIComponent(cropYear) : '';
   return _riskFetch('/risk/positions' + qs);
 }
 
@@ -50,36 +59,35 @@ function createRiskPositionDB(data) {
 }
 
 function updateRiskPositionDB(id, data) {
-  return _riskFetch('/risk/positions/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  return _riskFetch('/risk/positions/' + id, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
 function deleteRiskPositionDB(id) {
   return _riskFetch('/risk/positions/' + id, { method: 'DELETE' });
 }
 
-// ---- Elevator Hedges ----
+// ---- Elevator Hedges (nested under /contracts/:id/hedges) ----
 
-function fetchElevatorHedgesDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
-  return _riskFetch('/risk/elevator-hedges' + qs);
+function fetchElevatorHedgesDB(contractId) {
+  return _riskFetch('/risk/contracts/' + contractId + '/hedges');
 }
 
-function createElevatorHedgeDB(data) {
-  return _riskFetch('/risk/elevator-hedges', { method: 'POST', body: JSON.stringify(data) });
+function createElevatorHedgeDB(contractId, data) {
+  return _riskFetch('/risk/contracts/' + contractId + '/hedges', { method: 'POST', body: JSON.stringify(data) });
 }
 
-function updateElevatorHedgeDB(id, data) {
-  return _riskFetch('/risk/elevator-hedges/' + id, { method: 'PUT', body: JSON.stringify(data) });
+function updateElevatorHedgeDB(contractId, hedgeId, data) {
+  return _riskFetch('/risk/contracts/' + contractId + '/hedges/' + hedgeId, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
-function deleteElevatorHedgeDB(id) {
-  return _riskFetch('/risk/elevator-hedges/' + id, { method: 'DELETE' });
+function deleteElevatorHedgeDB(contractId, hedgeId) {
+  return _riskFetch('/risk/contracts/' + contractId + '/hedges/' + hedgeId, { method: 'DELETE' });
 }
 
 // ---- Deliveries ----
 
 function fetchRiskDeliveriesDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
+  var qs = cropYear ? '?cropYear=' + encodeURIComponent(cropYear) : '';
   return _riskFetch('/risk/deliveries' + qs);
 }
 
@@ -88,7 +96,7 @@ function createRiskDeliveryDB(data) {
 }
 
 function updateRiskDeliveryDB(id, data) {
-  return _riskFetch('/risk/deliveries/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  return _riskFetch('/risk/deliveries/' + id, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
 function deleteRiskDeliveryDB(id) {
@@ -97,9 +105,8 @@ function deleteRiskDeliveryDB(id) {
 
 // ---- Documents ----
 
-function fetchRiskDocumentsDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
-  return _riskFetch('/risk/documents' + qs);
+function fetchRiskDocumentsDB() {
+  return _riskFetch('/risk/documents');
 }
 
 function uploadRiskDocumentDB(formData) {
@@ -120,7 +127,7 @@ function deleteRiskDocumentDB(id) {
 // ---- Crop Inventory ----
 
 function fetchCropInventoryDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
+  var qs = cropYear ? '?cropYear=' + encodeURIComponent(cropYear) : '';
   return _riskFetch('/risk/crop-inventory' + qs);
 }
 
@@ -129,7 +136,7 @@ function createCropInventoryDB(data) {
 }
 
 function updateCropInventoryDB(id, data) {
-  return _riskFetch('/risk/crop-inventory/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  return _riskFetch('/risk/crop-inventory/' + id, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
 function deleteCropInventoryDB(id) {
@@ -139,7 +146,7 @@ function deleteCropInventoryDB(id) {
 // ---- Bin Inventory ----
 
 function fetchBinInventoryDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
+  var qs = cropYear ? '?cropYear=' + encodeURIComponent(cropYear) : '';
   return _riskFetch('/risk/bin-inventory' + qs);
 }
 
@@ -148,7 +155,7 @@ function createBinInventoryDB(data) {
 }
 
 function updateBinInventoryDB(id, data) {
-  return _riskFetch('/risk/bin-inventory/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  return _riskFetch('/risk/bin-inventory/' + id, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
 function deleteBinInventoryDB(id) {
@@ -158,7 +165,7 @@ function deleteBinInventoryDB(id) {
 // ---- Fert Positions ----
 
 function fetchFertPositionsDB(cropYear) {
-  var qs = cropYear ? '?crop_year=' + encodeURIComponent(cropYear) : '';
+  var qs = cropYear ? '?cropYear=' + encodeURIComponent(cropYear) : '';
   return _riskFetch('/risk/fert-positions' + qs);
 }
 
@@ -167,7 +174,7 @@ function createFertPositionDB(data) {
 }
 
 function updateFertPositionDB(id, data) {
-  return _riskFetch('/risk/fert-positions/' + id, { method: 'PUT', body: JSON.stringify(data) });
+  return _riskFetch('/risk/fert-positions/' + id, { method: 'PATCH', body: JSON.stringify(data) });
 }
 
 function deleteFertPositionDB(id) {

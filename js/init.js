@@ -8,7 +8,6 @@ async function connectAndLoad() {
       fetchRiskSettingsDB().catch(function(e) { console.warn('Settings load failed:', e); return []; }),
       fetchRiskContractsDB().catch(function(e) { console.warn('Contracts load failed:', e); return []; }),
       fetchRiskPositionsDB().catch(function(e) { console.warn('Positions load failed:', e); return []; }),
-      fetchElevatorHedgesDB().catch(function(e) { console.warn('Elevator hedges load failed:', e); return []; }),
       fetchRiskDeliveriesDB().catch(function(e) { console.warn('Deliveries load failed:', e); return []; }),
       fetchRiskDocumentsDB().catch(function(e) { console.warn('Documents load failed:', e); return []; }),
       fetchCropInventoryDB().catch(function(e) { console.warn('Crop inventory load failed:', e); return []; }),
@@ -24,13 +23,13 @@ async function connectAndLoad() {
     }
     STATE.contracts = results[1] || [];
     STATE.positions = results[2] || [];
-    STATE.elevatorHedges = results[3] || [];
-    STATE.deliveries = results[4] || [];
-    STATE.documents = results[5] || [];
-    STATE.cropInventory = results[6] || [];
-    STATE.binInventory = results[7] || [];
-    STATE.fertPositions = results[8] || [];
-    STATE.marketPrices = results[9] || [];
+    STATE.deliveries = results[3] || [];
+    STATE.documents = results[4] || [];
+    STATE.cropInventory = results[5] || [];
+    STATE.binInventory = results[6] || [];
+    STATE.fertPositions = results[7] || [];
+    STATE.marketPrices = results[8] || [];
+    // Elevator hedges loaded per-contract on demand (nested API route)
 
     STATE._dataLoaded = true;
     hideLoading();

@@ -813,3 +813,132 @@ textarea.form-input {
     margin: 0 auto;
   }
 }
+
+/* ==================== GRAIN PAGE ==================== */
+
+.grain-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.grain-toolbar-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.grain-filter-select {
+  width: auto;
+  min-width: 120px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+.grain-commodity-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.grain-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.grain-status-open {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.grain-status-delivered {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.grain-status-cancelled {
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+.grain-status-split {
+  color: var(--text3);
+}
+
+.grain-actions {
+  white-space: nowrap;
+}
+
+.grain-row:hover td {
+  background: var(--surface2);
+}
+
+.grain-detail-row td {
+  padding: 0;
+  background: var(--surface2);
+}
+
+.grain-detail-inner {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.8;
+}
+
+.grain-detail-sep {
+  margin: 0 10px;
+  color: var(--text3);
+}
+
+.grain-group {
+  margin-bottom: 20px;
+}
+
+.grain-group-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  margin-bottom: 4px;
+  border-bottom: 2px solid var(--border);
+}
+
+.grain-group-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.grain-group-summary {
+  font-size: 13px;
+  color: var(--text3);
+}
+
+/* Contract modal 2-column grid */
+.grain-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+@media (max-width: 480px) {
+  .grain-modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grain-filter-select {
+    min-width: 100px;
+    font-size: 12px;
+  }
+}
