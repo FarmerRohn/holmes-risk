@@ -189,7 +189,7 @@ function _grainRenderTable(contracts) {
     var statusClass = _grainStatusClass(c.status);
     var isExpanded = _grainExpandedRows[id];
 
-    html += '<tr class="grain-row" onclick="grainToggleRow(' + id + ')" style="cursor:pointer">' +
+    html += '<tr class="grain-row" onclick="grainToggleRow(\'' + escapeAttr(id) + '\')" style="cursor:pointer">' +
       '<td>' +
         '<span class="grain-commodity-dot" style="background:' + color + '"></span> ' +
         esc(c.commodity) +
@@ -202,8 +202,8 @@ function _grainRenderTable(contracts) {
       '<td>' + esc(c.buyerName || '') + '</td>' +
       '<td><span class="grain-status ' + statusClass + '">' + esc(c.status) + '</span></td>' +
       '<td class="grain-actions" onclick="event.stopPropagation()">' +
-        '<button class="btn btn-secondary btn-sm" onclick="grainOpenContractModal(' + id + ')">Edit</button> ' +
-        '<button class="btn btn-danger btn-sm" onclick="grainDeleteContract(' + id + ')">Delete</button>' +
+        '<button class="btn btn-secondary btn-sm" onclick="grainOpenContractModal(\'' + escapeAttr(id) + '\')">Edit</button> ' +
+        '<button class="btn btn-danger btn-sm" onclick="grainDeleteContract(\'' + escapeAttr(id) + '\')">Delete</button>' +
       '</td>' +
     '</tr>';
 
@@ -332,7 +332,7 @@ function grainOpenContractModal(id) {
   var showFutMo = cType === 'HTA' || cType === 'Basis';
 
   var html = '<h2 class="modal-title">' + esc(title) + '</h2>' +
-    '<form id="grainContractForm" onsubmit="grainSaveContract(event, ' + (id || 'null') + ')">' +
+    '<form id="grainContractForm" onsubmit="grainSaveContract(event, ' + (id ? '\'' + escapeAttr(id) + '\'' : 'null') + ')">' +
       '<div class="grain-modal-grid">' +
         // Row 1: Commodity + Type
         '<div class="form-group">' +
