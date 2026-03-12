@@ -165,7 +165,7 @@ async function build() {
         'posOpenPositionModal', 'posDeletePosition', 'posApplyFilter',
         'posSavePosition', 'posOnTypeChange', 'posOnStatusChange',
         'posOnCommodityChange', 'posToggleRow', 'posUpdatePnlPreview',
-        'posCalcGreeks',
+        'posCalcGreeks', 'posOpenExerciseModal', 'posConfirmExercise',
         // Settings page functions
         'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators'
       ]

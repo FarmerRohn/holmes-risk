@@ -39,7 +39,7 @@ function _posRenderToolbar(cropYear) {
   }
 
   // Status filter
-  var statuses = ['Open', 'Closed', 'Expired'];
+  var statuses = ['Open', 'Closed', 'Expired', 'Exercised'];
   var statOpts = '<option value="All">All Statuses</option>';
   for (var si = 0; si < statuses.length; si++) {
     var sSel = _posFilters.status === statuses[si] ? ' selected' : '';
@@ -151,6 +151,9 @@ function _posRenderTable(positions) {
       '<td style="text-align:right;font-family:var(--mono)">' + (delta != null ? delta.toFixed(4) : '\u2014') + '</td>' +
       '<td><span class="grain-status ' + statusClass + '">' + esc(p.status || '') + '</span></td>' +
       '<td class="grain-actions" onclick="event.stopPropagation()">' +
+        ((p.status === 'Open' && (p.contractType === 'Call' || p.contractType === 'Put'))
+          ? '<button class="btn btn-sm pos-btn-exercise" onclick="posOpenExerciseModal(\'' + escapeAttr(id) + '\')">Exercise</button> '
+          : '') +
         '<button class="btn btn-secondary btn-sm" onclick="posOpenPositionModal(\'' + escapeAttr(id) + '\')">Edit</button> ' +
         '<button class="btn btn-danger btn-sm" onclick="posDeletePosition(\'' + escapeAttr(id) + '\')">Delete</button>' +
       '</td>' +
@@ -183,6 +186,14 @@ function _posRenderDetailPanel(p) {
   if (p.account) parts.push('<strong>Account:</strong> ' + esc(p.account));
   if (p.notes) parts.push('<strong>Notes:</strong> ' + esc(p.notes));
 
+  // Exercise relationship indicators
+  if (p.sourceType === 'exercise' && p.sourceOptionId) {
+    parts.push('<span class="pos-badge-exercise">from exercise</span>');
+  }
+  if (p.resultingPositionId) {
+    parts.push('<span class="pos-badge-exercised">Exercised \u2192 resulting position</span>');
+  }
+
   if (parts.length === 0) {
     return '<div class="grain-detail-inner"><span style="color:var(--text3)">No additional details</span></div>';
   }
@@ -195,6 +206,7 @@ function _posStatusClass(status) {
     case 'Open': return 'grain-status-open';
     case 'Closed': return 'pos-status-closed';
     case 'Expired': return 'pos-status-expired';
+    case 'Exercised': return 'pos-status-exercised';
     default: return '';
   }
 }
@@ -265,7 +277,7 @@ function posOpenPositionModal(id) {
   }
 
   // Status options
-  var statusList = ['Open', 'Closed', 'Expired'];
+  var statusList = ['Open', 'Closed', 'Expired', 'Exercised'];
   var statOpts = '';
   var currentStatus = p.status || 'Open';
   for (var sti = 0; sti < statusList.length; sti++) {
@@ -687,6 +699,195 @@ function posDeletePosition(id) {
     })
     .catch(function(err) {
       showToast('Failed to delete: ' + err.message, 'error');
+    });
+}
+
+// ---- Exercise Modal ----
+
+function posOpenExerciseModal(positionId) {
+  var position = null;
+  for (var i = 0; i < STATE.positions.length; i++) {
+    if (STATE.positions[i].id === positionId) {
+      position = STATE.positions[i];
+      break;
+    }
+  }
+  if (!position) { showToast('Position not found', 'error'); return; }
+
+  var isCall = position.contractType === 'Call';
+  var resultSide = isCall ? 'Long' : 'Short';
+  var strike = position.strike != null ? parseFloat(position.strike) : null;
+  var premium = position.entryPrice != null ? parseFloat(position.entryPrice) : 0;
+  var underlying = position.underlying || '';
+  var bpc = position.bushelsPerContract != null ? parseFloat(position.bushelsPerContract) : (DEFAULT_BUSHELS_PER_CONTRACT[position.commodity] || 5000);
+  var contracts = position.contracts != null ? parseFloat(position.contracts) : 0;
+  var totalBu = contracts * bpc;
+  var effEntry = strike != null ? parseFloat((isCall ? strike + premium : strike - premium).toFixed(6)) : null;
+
+  var today = new Date();
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+  var sideColor = resultSide === 'Long' ? 'var(--green)' : 'var(--red)';
+  var effLabel = isCall ? 'Strike + Premium paid' : 'Strike \u2212 Premium paid';
+
+  var html = '<h2 class="modal-title">Exercise Option \u2014 ' + esc(position.contractType) + ' ' + esc(position.underlying || position.commodity) + '</h2>' +
+
+    // Info banner
+    '<div class="pos-exercise-info">' +
+      'Exercising: <strong>' + esc(position.contractType) + ' ' + esc(position.underlying || position.commodity) + '</strong>' +
+      ' &nbsp;|&nbsp; Strike: <strong>' + (strike != null ? _posFmtPrice(strike) : '\u2014') + '</strong>' +
+      ' &nbsp;|&nbsp; ' + contracts + ' contract' + (contracts !== 1 ? 's' : '') + ' (' + totalBu.toLocaleString() + ' bu)' +
+      ' &nbsp;|&nbsp; Premium paid: <strong>' + _posFmtPrice(premium) + '/bu</strong>' +
+    '</div>' +
+
+    // Exercise date
+    '<div class="grain-modal-grid">' +
+      '<div class="form-group">' +
+        '<label class="form-label">Exercise Date</label>' +
+        '<input type="date" class="form-input" id="posExerciseDate" value="' + escapeAttr(todayStr) + '" required>' +
+      '</div>' +
+      '<div class="form-group"></div>' +
+    '</div>' +
+
+    // Resulting futures preview
+    '<div class="pos-exercise-preview-header">Resulting Futures Position</div>' +
+    '<div class="grain-modal-grid">' +
+      '<div class="pos-exercise-preview-field">' +
+        '<label class="form-label" style="color:var(--text3)">Side</label>' +
+        '<strong style="font-size:1rem;color:' + sideColor + '">' + esc(resultSide) + '</strong>' +
+      '</div>' +
+      '<div class="pos-exercise-preview-field">' +
+        '<label class="form-label" style="color:var(--text3)">Entry Price = Strike</label>' +
+        '<strong style="font-size:1rem">' + (strike != null ? _posFmtPrice(strike) : '\u2014 (set strike on option first)') + '</strong>' +
+      '</div>' +
+    '</div>' +
+    '<div class="grain-modal-grid">' +
+      '<div class="pos-exercise-preview-field">' +
+        '<label class="form-label" style="color:var(--text3)">Futures Symbol</label>' +
+        '<strong>' + esc(underlying || '(derived from option)') + '</strong>' +
+      '</div>' +
+      '<div class="pos-exercise-preview-field pos-exercise-eff">' +
+        '<label class="form-label" style="color:var(--text3)">Effective Entry (after premium)</label>' +
+        '<strong style="font-size:1rem">' + (effEntry != null ? _posFmtPrice(effEntry) : '\u2014') + '</strong>' +
+        '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + esc(effLabel) + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    // Notes
+    '<div class="form-group" style="margin-top:12px">' +
+      '<label class="form-label">Notes</label>' +
+      '<input type="text" class="form-input" id="posExerciseNotes" placeholder="e.g. exercised Dec corn put into short futures">' +
+    '</div>' +
+
+    // Actions
+    '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
+      '<button type="button" class="btn btn-primary" onclick="posConfirmExercise(\'' + escapeAttr(positionId) + '\')">Confirm Exercise</button>' +
+    '</div>';
+
+  showModal(html);
+}
+
+// ---- Exercise save handler ----
+
+function posConfirmExercise(positionId) {
+  var option = null;
+  var optionIndex = -1;
+  for (var i = 0; i < STATE.positions.length; i++) {
+    if (STATE.positions[i].id === positionId) {
+      option = STATE.positions[i];
+      optionIndex = i;
+      break;
+    }
+  }
+  if (!option) { showToast('Position not found', 'error'); return; }
+
+  var isCall = option.contractType === 'Call';
+  var strike = option.strike != null ? parseFloat(option.strike) : null;
+  var premium = option.entryPrice != null ? parseFloat(option.entryPrice) : 0;
+  var underlying = option.underlying || '';
+
+  // Validate strike
+  if (strike == null) {
+    showToast('Set a strike price on this option before exercising', 'error');
+    return;
+  }
+
+  var exerciseDateEl = document.getElementById('posExerciseDate');
+  var exerciseDate = exerciseDateEl ? exerciseDateEl.value : '';
+  if (!exerciseDate) {
+    showToast('Exercise date is required', 'error');
+    return;
+  }
+
+  var notesEl = document.getElementById('posExerciseNotes');
+  var notes = notesEl ? notesEl.value.trim() : '';
+
+  var resultSide = isCall ? 'Long' : 'Short';
+  var effectiveEntry = parseFloat((isCall ? strike + premium : strike - premium).toFixed(6));
+  var bpc = option.bushelsPerContract != null ? parseFloat(option.bushelsPerContract) : (DEFAULT_BUSHELS_PER_CONTRACT[option.commodity] || 5000);
+  var contracts = option.contracts != null ? parseFloat(option.contracts) : 0;
+
+  // Build new futures position data
+  var newPositionData = {
+    commodity: option.commodity,
+    cropYear: option.cropYear,
+    underlying: underlying,
+    contractType: 'Futures',
+    positionSide: resultSide,
+    contracts: contracts,
+    bushelsPerContract: bpc,
+    strike: null,
+    entryPrice: strike,
+    currentPrice: null,
+    effectiveEntryPrice: effectiveEntry,
+    delta: resultSide === 'Long' ? 1 : -1,
+    gamma: 0,
+    theta: 0,
+    vega: null,
+    iv: null,
+    expiryDate: null,
+    status: 'Open',
+    company: option.company || null,
+    account: option.account || null,
+    notes: notes || null,
+    linkedContractId: option.linkedContractId || null,
+    sourceType: 'exercise',
+    sourceOptionId: positionId
+  };
+
+  // 1. Create the new futures position first
+  createRiskPositionDB(newPositionData)
+    .then(function(created) {
+      var newId = created.id;
+
+      // 2. Update the option position
+      var optionUpdate = {
+        status: 'Exercised',
+        exerciseDate: exerciseDate,
+        closeReason: 'Exercised \u2192 ' + resultSide + ' ' + underlying,
+        resultingPositionId: newId
+      };
+
+      return updateRiskPositionDB(positionId, optionUpdate)
+        .then(function(updatedOption) {
+          // Update STATE: replace the option
+          for (var i = 0; i < STATE.positions.length; i++) {
+            if (STATE.positions[i].id === positionId) {
+              STATE.positions[i] = updatedOption;
+              break;
+            }
+          }
+          // Push new futures position
+          STATE.positions.push(created);
+
+          closeModal();
+          renderApp();
+          showToast('Option exercised \u2192 ' + resultSide + ' ' + underlying + ' @ ' + _posFmtPrice(strike) + ' (eff ' + _posFmtPrice(effectiveEntry) + ')', 'success');
+        });
+    })
+    .catch(function(err) {
+      showToast('Exercise failed: ' + err.message, 'error');
     });
 }
 

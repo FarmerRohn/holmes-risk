@@ -1178,3 +1178,72 @@ textarea.form-input {
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
+
+/* ==================== OPTION EXERCISE ==================== */
+
+.pos-status-exercised {
+  background: rgba(109, 40, 217, 0.12);
+  color: #7c3aed;
+}
+
+.pos-btn-exercise {
+  background: var(--amber-dim);
+  color: var(--amber);
+  border: 1px solid var(--amber);
+  font-weight: 600;
+}
+
+.pos-btn-exercise:hover {
+  background: var(--amber);
+  color: #fff;
+}
+
+.pos-exercise-info {
+  font-size: 13px;
+  background: var(--amber-dim);
+  border: 1px solid var(--amber);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.pos-exercise-preview-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--amber);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 8px 0 6px;
+}
+
+.pos-exercise-preview-field {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.pos-exercise-eff {
+  border: 1px solid var(--border);
+}
+
+.pos-badge-exercise {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(109, 40, 217, 0.12);
+  color: #7c3aed;
+}
+
+.pos-badge-exercised {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--amber-dim);
+  color: var(--amber);
+}
