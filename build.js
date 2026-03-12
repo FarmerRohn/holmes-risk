@@ -151,7 +151,7 @@ async function build() {
         'renderDashboardPage', 'renderGrainPage', 'renderPositionsPage',
         'renderDeliveriesPage', 'renderBasisPage', 'renderInputsPage',
         'renderInventoryPage', 'renderMarketPage', 'renderDocumentsPage',
-        'renderPnlPage', 'renderSettingsPage',
+        'renderPnlPage', 'pnlApplyCropYear', 'renderSettingsPage',
         // Dashboard page functions
         'dashboardRefreshPrices',
         // Grain page functions
