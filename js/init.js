@@ -13,7 +13,8 @@ async function connectAndLoad() {
       fetchCropInventoryDB().catch(function(e) { console.warn('Crop inventory load failed:', e); return []; }),
       fetchBinInventoryDB().catch(function(e) { console.warn('Bin inventory load failed:', e); return []; }),
       fetchFertPositionsDB().catch(function(e) { console.warn('Fert positions load failed:', e); return []; }),
-      fetchMarketQuotesDB().catch(function(e) { console.warn('Market quotes load failed:', e); return []; })
+      fetchMarketQuotesDB().catch(function(e) { console.warn('Market quotes load failed:', e); return []; }),
+      fetchPriceLogDB(null, 50).catch(function(e) { console.warn('Price log load failed:', e); return []; })
     ]);
 
     // Unpack settings into key-value map
@@ -29,6 +30,7 @@ async function connectAndLoad() {
     STATE.binInventory = results[6] || [];
     STATE.fertPositions = results[7] || [];
     STATE.marketPrices = results[8] || [];
+    STATE.priceLog = results[9] || [];
     // Elevator hedges loaded per-contract on demand (nested API route)
 
     STATE._dataLoaded = true;

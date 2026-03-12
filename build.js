@@ -171,7 +171,9 @@ async function build() {
         // Positions page — split functions
         'posOpenSplitModal', 'posConfirmSplit', '_posSplitRenderPieces', '_posSplitUpdateTotal',
         // Settings page functions
-        'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators'
+        'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators',
+        // Price log functions
+        'priceLogOpenModal', 'priceLogSave', 'priceLogFilterChange'
       ]
     },
     output: {
