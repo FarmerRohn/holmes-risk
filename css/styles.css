@@ -1311,3 +1311,93 @@ textarea.form-input {
   background: rgba(16, 185, 129, 0.12);
   color: #10b981;
 }
+
+/* ==================== MARKET PAGE ==================== */
+
+.market-commodity-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.market-comm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.market-comm-btn:hover {
+  color: var(--text);
+  border-color: var(--text3);
+}
+
+.market-comm-btn.market-comm-active {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.market-comm-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.market-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: var(--text3);
+  font-size: 14px;
+}
+
+.market-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--text3);
+  font-size: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.market-table {
+  font-size: 13px;
+}
+
+.market-table th {
+  white-space: nowrap;
+}
+
+.market-mono {
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.market-front-month td {
+  background: var(--surface2);
+  font-weight: 600;
+}
+
+.market-change-pos {
+  color: var(--green);
+}
+
+.market-change-neg {
+  color: var(--red);
+}

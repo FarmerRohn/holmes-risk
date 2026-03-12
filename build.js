@@ -145,6 +145,8 @@ async function build() {
         'fetchPriceLogDB', 'createPriceLogEntryDB',
         // DB functions — market
         'fetchMarketQuotesDB',
+        'fetchForwardCurveDB', 'fetchBasisDB', 'fetchBasisHistoryDB',
+        'fetchIvAnalyticsDB', 'fetchSpreadsDB', 'fetchOptionsChainDB', 'fetchSignalsDB',
         // Page renderers
         'renderDashboardPage', 'renderGrainPage', 'renderPositionsPage',
         'renderDeliveriesPage', 'renderBasisPage', 'renderInputsPage',
@@ -173,7 +175,9 @@ async function build() {
         // Settings page functions
         'settingsSaveCropYear', 'settingsSaveInput', 'settingsSaveElevators',
         // Price log functions
-        'priceLogOpenModal', 'priceLogSave', 'priceLogFilterChange'
+        'priceLogOpenModal', 'priceLogSave', 'priceLogFilterChange',
+        // Market page functions
+        'marketSelectCommodity', 'marketRefresh'
       ]
     },
     output: {

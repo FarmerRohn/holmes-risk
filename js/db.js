@@ -209,3 +209,31 @@ function createPriceLogEntryDB(data) {
 function fetchMarketQuotesDB() {
   return _riskFetch('/market/quotes');
 }
+
+function fetchForwardCurveDB(commodity) {
+  return _riskFetch('/market/forward-curve/' + encodeURIComponent(commodity));
+}
+
+function fetchBasisDB() {
+  return _riskFetch('/market/basis');
+}
+
+function fetchBasisHistoryDB() {
+  return _riskFetch('/market/basis-history');
+}
+
+function fetchIvAnalyticsDB(commodity) {
+  return _riskFetch('/market/iv-analytics/' + encodeURIComponent(commodity));
+}
+
+function fetchSpreadsDB(commodity) {
+  return _riskFetch('/market/spreads/' + encodeURIComponent(commodity));
+}
+
+function fetchOptionsChainDB(commodity) {
+  return _riskFetch('/market/options-chain/' + encodeURIComponent(commodity));
+}
+
+function fetchSignalsDB(commodity) {
+  return _riskFetch('/market/signals/' + encodeURIComponent(commodity));
+}
