@@ -106,6 +106,9 @@ async function build() {
         // Greeks engine
         'normCDF', 'normPDF', 'black76Greeks', 'impliedVol', 'symbolToExpiry',
         'MONTH_CODES',
+        // Risk calculations
+        'calcEffectivePrice', 'calcPL', 'calcExposure', 'calcNetDelta',
+        'getLatestFuturesPrice',
         // UI utilities
         'esc', 'escapeAttr', 'showToast', 'showLoading', 'hideLoading',
         'showModal', 'closeModal', 'toggleTheme',
