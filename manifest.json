@@ -1,0 +1,13 @@
+{
+  "name": "Holmes Farms — Risk Management",
+  "short_name": "Risk",
+  "description": "Grain risk management for Holmes Farms GP",
+  "id": "holmes-risk",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0c10",
+  "theme_color": "#0a0c10",
+  "icons": []
+}
