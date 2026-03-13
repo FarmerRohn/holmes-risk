@@ -79,17 +79,18 @@ function _marketRenderTable() {
     var isFront = (i === 0);
     var rowCls = isFront ? ' class="market-front-month"' : '';
 
-    // Format change with color and sign
-    var changeHtml = _marketFmtChange(row.change);
+    // Compute change: close - settlement (if both exist)
+    var chg = (row.close != null && row.settlement != null) ? row.close - row.settlement : null;
+    var changeHtml = _marketFmtChange(chg);
 
     html += '<tr' + rowCls + '>' +
-      '<td>' + esc(row.month || '\u2014') + '</td>' +
+      '<td>' + esc(row.monthName || '\u2014') + '</td>' +
       '<td class="market-mono">' + esc(row.symbol || '\u2014') + '</td>' +
-      '<td class="market-mono">' + _marketFmtPrice(row.lastPrice) + '</td>' +
+      '<td class="market-mono">' + _marketFmtPrice(row.close) + '</td>' +
       '<td class="market-mono">' + changeHtml + '</td>' +
-      '<td class="market-mono">' + _marketFmtPrice(row.settlementPrice) + '</td>' +
+      '<td class="market-mono">' + _marketFmtPrice(row.settlement) + '</td>' +
       '<td class="market-mono">' + _marketFmtInt(row.volume) + '</td>' +
-      '<td class="market-mono">' + _marketFmtInt(row.openInterest) + '</td>' +
+      '<td class="market-mono">' + _marketFmtInt(row.oi) + '</td>' +
     '</tr>';
   }
 
@@ -105,7 +106,7 @@ function _marketFetchCurve(commodity) {
 
   fetchForwardCurveDB(commodity)
     .then(function(data) {
-      _marketForwardCurve = data || [];
+      _marketForwardCurve = (data && data.curves) || [];
       _marketLoading = false;
       _marketUpdateContainer();
     })
