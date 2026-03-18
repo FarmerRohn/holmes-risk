@@ -33,13 +33,15 @@ const JS_FILES = [
   'js/pages/documents.js',
   'js/pages/pnl.js',
   'js/pages/settings.js',
+  'js/ai-chat.js',
   'js/pages.js',
   'js/init.js'
 ];
 
 // CSS files
 const CSS_FILES = [
-  'css/styles.css'
+  'css/styles.css',
+  'css/ai-chat.css'
 ];
 
 // Generate short content hash for cache-busting filenames
