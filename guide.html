@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grain Marketing User Guide — Holmes Farms</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #2d6a4f;
+      --green-light: #3a8a66;
+      --green-dark: #1f4d38;
+      --amber: #e9b949;
+      --amber-light: #f5d06b;
+      --amber-dark: #c49a2e;
+      --bg: #f4f6f4;
+      --bg-card: #ffffff;
+      --text: #1b2d1f;
+      --text2: #3a5241;
+      --text3: #6b8a73;
+      --border: #d4ddd6;
+      --border-light: #e8ede9;
+      --sidebar-bg: #1b2d1f;
+      --sidebar-text: #c8d9cc;
+      --sidebar-active: #e9b949;
+      --code-bg: #eef2ef;
+      --table-stripe: #f8faf8;
+      --shadow: 0 1px 3px rgba(27,45,31,0.08);
+      --shadow-lg: 0 4px 12px rgba(27,45,31,0.12);
+      --radius: 8px;
+      --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Sidebar ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .sidebar-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      color: var(--sidebar-text);
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+
+    .sidebar-nav {
+      padding: 16px 0;
+      flex: 1;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      padding: 9px 24px;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-nav a:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .sidebar-nav a.active {
+      color: var(--sidebar-active);
+      border-left-color: var(--sidebar-active);
+      background: rgba(233,185,73,0.06);
+    }
+
+    .sidebar-nav .section-num {
+      display: inline-block;
+      width: 26px;
+      color: var(--text3);
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.5;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 200;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 44px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 90;
+    }
+
+    /* ===== Main Content ===== */
+    .main {
+      margin-left: 280px;
+      max-width: 880px;
+      padding: 48px 48px 120px;
+    }
+
+    /* ===== Section ===== */
+    section {
+      margin-bottom: 64px;
+      scroll-margin-top: 32px;
+    }
+
+    section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    section h2 .section-number {
+      color: var(--amber);
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 32px 0 12px;
+    }
+
+    h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text2);
+      margin: 24px 0 8px;
+    }
+
+    p {
+      margin-bottom: 14px;
+      color: var(--text2);
+    }
+
+    /* ===== Collapsible Subsections ===== */
+    details {
+      margin: 20px 0;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    details summary {
+      padding: 14px 20px;
+      background: var(--bg-card);
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--green);
+      cursor: pointer;
+      user-select: none;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    details summary::-webkit-details-marker { display: none; }
+
+    details summary::before {
+      content: '\25B6';
+      font-size: 10px;
+      color: var(--text3);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    details[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    details summary:hover {
+      background: var(--table-stripe);
+    }
+
+    details .details-body {
+      padding: 20px;
+      border-top: 1px solid var(--border-light);
+      background: var(--bg-card);
+    }
+
+    /* ===== Lists ===== */
+    ul, ol {
+      margin: 0 0 14px 24px;
+      color: var(--text2);
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    li strong {
+      color: var(--text);
+    }
+
+    /* ===== Card ===== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin: 16px 0;
+      box-shadow: var(--shadow);
+    }
+
+    /* ===== Callout ===== */
+    .callout {
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin: 16px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .callout-warning {
+      background: #fef3cd;
+      border: 1px solid #ffc107;
+      color: #664d03;
+    }
+
+    .callout-info {
+      background: #e8f0ea;
+      border: 1px solid #b8d4be;
+      color: var(--green-dark);
+    }
+
+    .callout-tip {
+      background: #fffbe6;
+      border: 1px solid var(--amber);
+      color: #5c4a0a;
+    }
+
+    .callout-label {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* ===== Tables ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--green);
+      color: #fff;
+      font-weight: 600;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    th:first-child { border-radius: var(--radius) 0 0 0; }
+    th:last-child { border-radius: 0 var(--radius) 0 0; }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text2);
+    }
+
+    tr:nth-child(even) td {
+      background: var(--table-stripe);
+    }
+
+    /* ===== Code / kbd ===== */
+    code {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--green-dark);
+    }
+
+    kbd {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    /* ===== Badge ===== */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-green {
+      background: #dcf5e3;
+      color: var(--green-dark);
+    }
+
+    .badge-amber {
+      background: #fef3cd;
+      color: #7c6a1c;
+    }
+
+    .badge-blue {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-red {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-gray {
+      background: #f0f0f0;
+      color: #555;
+    }
+
+    /* ===== Step numbers ===== */
+    .steps {
+      counter-reset: step-counter;
+      list-style: none;
+      margin-left: 0;
+      padding-left: 0;
+    }
+
+    .steps li {
+      counter-increment: step-counter;
+      padding: 12px 0 12px 52px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .steps li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      text-align: center;
+      line-height: 34px;
+    }
+
+    /* ===== Commodity dots ===== */
+    .commodity-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .dot-corn { background: #e9b949; }
+    .dot-soy { background: #2d6a4f; }
+    .dot-wheat { background: #c2956c; }
+    .dot-oil { background: #2b6cb0; }
+
+    /* ===== Tab bar mockup ===== */
+    .tab-mockup {
+      display: flex;
+      gap: 2px;
+      background: var(--border-light);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin: 16px 0;
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+
+    .tab-mockup span {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+
+    .tab-mockup span.tab-active {
+      background: var(--bg-card);
+      color: var(--green);
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+
+    /* ===== Divider ===== */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border-light);
+      margin: 32px 0;
+    }
+
+    /* ===== FAQ ===== */
+    .faq-q {
+      font-weight: 600;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .faq-a {
+      margin-bottom: 20px;
+      padding-left: 20px;
+      border-left: 3px solid var(--amber);
+      color: var(--text2);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+      .main {
+        margin-left: 0;
+        padding: 32px 24px 100px;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-toggle {
+        display: block;
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      section h2 {
+        font-size: 24px;
+      }
+
+      table {
+        font-size: 13px;
+      }
+
+      th, td {
+        padding: 8px 10px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .main {
+        padding: 24px 16px 80px;
+      }
+
+      section h2 {
+        font-size: 22px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .tab-mockup {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+      }
+
+      .tab-mockup span {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Mobile sidebar toggle -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation">&#9776;</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>Grain Marketing</h1>
+    <p>User Guide &mdash; Holmes Farms</p>
+  </div>
+  <div class="sidebar-nav">
+    <a href="#welcome"><span class="section-num">1.</span> Welcome</a>
+    <a href="#getting-started"><span class="section-num">2.</span> Getting Started</a>
+    <a href="#dashboard"><span class="section-num">3.</span> Dashboard</a>
+    <a href="#inventory"><span class="section-num">4.</span> Inventory</a>
+    <a href="#marketing"><span class="section-num">5.</span> Marketing</a>
+    <a href="#price-log"><span class="section-num">6.</span> Price Log</a>
+    <a href="#pnl"><span class="section-num">7.</span> P&amp;L</a>
+    <a href="#documents"><span class="section-num">8.</span> Documents</a>
+    <a href="#settings"><span class="section-num">9.</span> Settings</a>
+    <a href="#ai-assistant"><span class="section-num">10.</span> AI Assistant</a>
+    <a href="#security"><span class="section-num">11.</span> Security</a>
+    <a href="#migration"><span class="section-num">12.</span> Coming from Grain-Tracker</a>
+    <a href="#faq"><span class="section-num">13.</span> FAQ / Troubleshooting</a>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- ============================================================= -->
+  <!-- 1. WELCOME -->
+  <!-- ============================================================= -->
+  <section id="welcome">
+    <h2><span class="section-number">1</span> Welcome</h2>
+
+    <p>
+      <strong>Grain Marketing</strong> is the server-backed evolution of the Grain-Tracker spreadsheet
+      you have been using. It is the same concept &mdash; tracking contracts, positions, deliveries, basis,
+      inventory, and P&amp;L for Holmes Farms' grain marketing program &mdash; but rebuilt as a multi-user
+      web application running on the farm's own server.
+    </p>
+
+    <div class="card">
+      <h4>What changed?</h4>
+      <ul>
+        <li><strong>Multi-device access.</strong> Sign in from your laptop, phone, or tablet. Your data is always in sync.</li>
+        <li><strong>Automatic backups.</strong> The PostgreSQL database is backed up daily on the Holmes Farms server. No more worrying about losing a browser's localStorage.</li>
+        <li><strong>Team collaboration.</strong> Each user signs in with their own Google account. Multiple people can view and manage marketing data.</li>
+        <li><strong>Encrypted at rest.</strong> Your grain data is encrypted with AES-256-GCM before it is stored. Only your PIN or password can unlock it.</li>
+        <li><strong>AI assistant.</strong> Ask natural-language questions about your positions, contracts, and hedge percentages.</li>
+      </ul>
+    </div>
+
+    <p>
+      The app lives at <strong>risk.holmes-farms.com</strong> and is accessible from any modern browser.
+      You can also install it as a PWA (Progressive Web App) on your phone for an app-like experience.
+    </p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 2. GETTING STARTED -->
+  <!-- ============================================================= -->
+  <section id="getting-started">
+    <h2><span class="section-number">2</span> Getting Started</h2>
+
+    <h3>Sign In</h3>
+    <ol class="steps">
+      <li>
+        Navigate to <strong>risk.holmes-farms.com</strong> in your browser (Chrome, Safari, Edge, or Firefox).
+      </li>
+      <li>
+        Click <strong>Sign in with Google</strong>. Use your <code>@holmesfarmsgp.com</code> Google account.
+        If the Google One Tap prompt appears automatically, you can click your name to sign in instantly.
+      </li>
+      <li>
+        On first sign-in, you will be prompted to set up encryption. This is a one-time process.
+      </li>
+    </ol>
+
+    <h3>First-Time Encryption Setup</h3>
+    <p>
+      Before you can access any data, you need to create two credentials that protect your grain marketing information:
+    </p>
+
+    <div class="card">
+      <table>
+        <tr>
+          <th style="width: 160px;">Credential</th>
+          <th>Purpose</th>
+          <th style="width: 140px;">Requirements</th>
+        </tr>
+        <tr>
+          <td><strong>PIN</strong></td>
+          <td>Quick unlock. You will enter this on a numpad every time you open the app or after 30 minutes of inactivity.</td>
+          <td>4&ndash;8 digits</td>
+        </tr>
+        <tr>
+          <td><strong>Master Password</strong></td>
+          <td>Recovery fallback. If you forget your PIN, use this password to unlock instead.</td>
+          <td>6+ characters</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="callout callout-warning">
+      <span class="callout-label">Warning</span>
+      If you forget both your PIN and your master password, your encrypted data <strong>cannot be recovered</strong>.
+      This is the same security model as Grain-Tracker &mdash; the encryption keys are derived from your credentials
+      and are never stored in plaintext on the server.
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-label">Tip</span>
+      Pick a PIN you can type quickly on the numpad (you will use it often), and a password you can
+      remember but would not easily guess. Write the password down and keep it somewhere safe.
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 3. DASHBOARD -->
+  <!-- ============================================================= -->
+  <section id="dashboard">
+    <h2><span class="section-number">3</span> Dashboard</h2>
+
+    <p>
+      The Dashboard is the first screen you see after unlocking. It gives you a real-time snapshot of your
+      overall marketing position.
+    </p>
+
+    <div class="tab-mockup">
+      <span class="tab-active">Dashboard</span>
+      <span>Inventory</span>
+      <span>Marketing</span>
+      <span>Price Log</span>
+      <span>P&amp;L</span>
+      <span>Documents</span>
+      <span>Settings</span>
+    </div>
+
+    <details open>
+      <summary>Futures Price Strip</summary>
+      <div class="details-body">
+        <p>
+          At the top of the dashboard, a horizontal strip shows live commodity prices with color-coded chips:
+        </p>
+        <ul>
+          <li><span class="commodity-dot dot-corn"></span> <strong>Corn</strong> (amber)</li>
+          <li><span class="commodity-dot dot-soy"></span> <strong>Soybeans</strong> (green)</li>
+          <li><span class="commodity-dot dot-wheat"></span> <strong>Wheat</strong> (brown)</li>
+          <li><span class="commodity-dot dot-oil"></span> <strong>Heating Oil</strong> (blue)</li>
+        </ul>
+        <p>
+          Prices are fetched from the market data API and displayed to 4 decimal places. Click <strong>Refresh</strong>
+          to manually update, or let the auto-refresh pull new data every 5 minutes.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Position Summary Table</summary>
+      <div class="details-body">
+        <p>
+          The Position Summary table aggregates all your contracts and positions into key metrics:
+        </p>
+        <table>
+          <tr><th>Metric</th><th>What It Means</th></tr>
+          <tr><td><strong>Hedge %</strong></td><td>Percentage of gross expected bushels that are committed via contracts. Color-coded: green (&gt;80%), amber (50&ndash;80%), red (&lt;50%).</td></tr>
+          <tr><td><strong>Total Committed</strong></td><td>Bushels locked in via open + delivered contracts.</td></tr>
+          <tr><td><strong>Priced Open</strong></td><td>Bushels with a futures price locked (HTA, Cash, etc.) that are still open.</td></tr>
+          <tr><td><strong>Basis Open</strong></td><td>Bushels with basis set but no futures price yet.</td></tr>
+          <tr><td><strong>Unpriced</strong></td><td>Gross bushels minus committed bushels &mdash; what is still available to sell.</td></tr>
+          <tr><td><strong>Net Delta</strong></td><td>Net futures-equivalent exposure from all positions (long minus short).</td></tr>
+          <tr><td><strong>Unrealized P&amp;L</strong></td><td>Mark-to-market profit or loss on open contracts relative to your cost basis.</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details>
+      <summary>By Commodity Breakdown</summary>
+      <div class="details-body">
+        <p>
+          Below the summary, a per-commodity table shows gross bushels, committed, unpriced, and hedge %
+          for each commodity. This helps you see at a glance which crops need more marketing attention.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Recent Contracts</summary>
+      <div class="details-body">
+        <p>
+          The bottom of the dashboard shows the 5 most recently created contracts with commodity, type,
+          bushels, effective price, and status badge.
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 4. INVENTORY -->
+  <!-- ============================================================= -->
+  <section id="inventory">
+    <h2><span class="section-number">4</span> Inventory</h2>
+
+    <p>
+      The Inventory tab tracks your physical grain &mdash; what is in the field and what is in storage.
+      It has two sub-tabs:
+    </p>
+
+    <div class="tab-mockup">
+      <span class="tab-active">Crop Fields</span>
+      <span>Storage</span>
+    </div>
+
+    <details open>
+      <summary>Crop Fields</summary>
+      <div class="details-body">
+        <p>
+          Each row represents a field and its expected production for the active crop year. Fields are sorted alphabetically by name.
+        </p>
+        <table>
+          <tr><th>Column</th><th>Description</th></tr>
+          <tr><td>Field</td><td>Name of the field (e.g., "North 80")</td></tr>
+          <tr><td>Commodity</td><td>What is planted: Corn, Soybeans, Wheat, or Heating Oil</td></tr>
+          <tr><td>Acres</td><td>Planted acres</td></tr>
+          <tr><td>Yield Est</td><td>Expected yield in bushels per acre</td></tr>
+          <tr><td>Expected Bu</td><td>Auto-calculated: Acres &times; Yield Estimate (editable override)</td></tr>
+          <tr><td>Actual Bu</td><td>Actual harvested bushels (fill in after harvest)</td></tr>
+          <tr><td>Notes</td><td>Freeform notes</td></tr>
+        </table>
+        <p>
+          Summary cards at the top show <strong>Total Acres</strong>, <strong>Expected Bu</strong>, and
+          <strong>Actual Bu</strong> across all fields.
+        </p>
+        <p>
+          This data feeds directly into the Dashboard's hedge calculations. The gross bushels used for
+          hedge % comes from Settings (see section 9), but crop field records help you plan and track
+          production by field.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Storage</summary>
+      <div class="details-body">
+        <p>
+          Track what grain is sitting in bins. Each row is a storage location.
+        </p>
+        <table>
+          <tr><th>Column</th><th>Description</th></tr>
+          <tr><td>Location</td><td>Bin name or location (e.g., "Bin 3", "Flat Storage North")</td></tr>
+          <tr><td>Commodity</td><td>What commodity is stored there</td></tr>
+          <tr><td>Bushels</td><td>Total bushels currently in the bin</td></tr>
+          <tr><td>Date Filled</td><td>When the bin was last filled</td></tr>
+          <tr><td>Notes</td><td>Freeform notes</td></tr>
+        </table>
+        <p>
+          Summary cards show <strong>Total Bu in Storage</strong> and <strong>Bins with Grain</strong>.
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 5. MARKETING -->
+  <!-- ============================================================= -->
+  <section id="marketing">
+    <h2><span class="section-number">5</span> Marketing</h2>
+
+    <p>
+      This is the most feature-rich tab. It has 6 sub-tabs covering every aspect of your grain and input
+      marketing program:
+    </p>
+
+    <div class="tab-mockup">
+      <span class="tab-active">Contracts</span>
+      <span>Positions</span>
+      <span>Deliveries</span>
+      <span>Basis</span>
+      <span>Inputs</span>
+      <span>Market</span>
+    </div>
+
+    <!-- Contracts -->
+    <details open>
+      <summary>Contracts</summary>
+      <div class="details-body">
+        <p>
+          The Contracts sub-tab is where you track every grain sale contract. Each contract represents
+          a commitment to deliver bushels to a buyer at a price.
+        </p>
+
+        <h4>Contract Types</h4>
+        <table>
+          <tr><th>Type</th><th>Description</th></tr>
+          <tr><td><span class="badge badge-green">HTA</span></td><td><strong>Hedge-to-Arrive.</strong> Futures price locked, basis set later.</td></tr>
+          <tr><td><span class="badge badge-green">Cash</span></td><td><strong>Cash sale.</strong> Flat price (futures + basis) set at signing.</td></tr>
+          <tr><td><span class="badge badge-amber">Basis</span></td><td><strong>Basis contract.</strong> Basis locked, futures price set later.</td></tr>
+          <tr><td><span class="badge badge-gray">Bushels Only</span></td><td>Committed bushels with no price component yet.</td></tr>
+          <tr><td><span class="badge badge-blue">DP</span></td><td><strong>Delayed Price.</strong> Bushels delivered, price set later.</td></tr>
+          <tr><td><span class="badge badge-amber">Min Price</span></td><td><strong>Minimum Price contract.</strong> Floor price with upside potential.</td></tr>
+          <tr><td><span class="badge badge-blue">Accumulator</span></td><td><strong>Accumulator.</strong> Periodic accumulation at a strike price.</td></tr>
+        </table>
+
+        <h4>Contract Statuses</h4>
+        <ul>
+          <li><span class="badge badge-green">Open</span> &mdash; Active contract, bushels not yet delivered</li>
+          <li><span class="badge badge-blue">Delivered</span> &mdash; Grain has been delivered against this contract</li>
+          <li><span class="badge badge-red">Cancelled</span> &mdash; Contract was cancelled</li>
+          <li><span class="badge badge-gray">Split</span> &mdash; Original contract was split into child contracts</li>
+        </ul>
+
+        <h4>Filtering and Grouping</h4>
+        <p>
+          Use the toolbar dropdowns to filter by <strong>Commodity</strong>, <strong>Type</strong>, and
+          <strong>Status</strong>. The Grouping dropdown lets you group contracts by commodity, type, buyer,
+          or status for easier scanning of large lists.
+        </p>
+
+        <h4>Elevator Hedges</h4>
+        <p>
+          Expand any contract row to see its <strong>elevator hedges</strong> &mdash; the underlying
+          futures positions your buyer has placed against your contract. These are nested under the
+          parent contract and loaded on demand.
+        </p>
+
+        <h4>Rolls and Splits</h4>
+        <p>
+          Contracts support <strong>rolls</strong> (moving to a different futures month) and
+          <strong>splits</strong> (dividing a contract into two smaller contracts). These are tracked
+          as linked child records.
+        </p>
+      </div>
+    </details>
+
+    <!-- Positions -->
+    <details>
+      <summary>Positions</summary>
+      <div class="details-body">
+        <p>
+          The Positions sub-tab tracks your own futures and options positions &mdash; separate from
+          elevator-managed hedges on contracts.
+        </p>
+
+        <h4>Position Types</h4>
+        <ul>
+          <li><strong>Futures</strong> &mdash; Long or Short futures contracts</li>
+          <li><strong>Options</strong> &mdash; Call or Put options, with strike price and premium</li>
+        </ul>
+
+        <h4>Greeks</h4>
+        <p>
+          For options positions, the app calculates and displays the Greeks:
+        </p>
+        <table>
+          <tr><th>Greek</th><th>Meaning</th></tr>
+          <tr><td><strong>Delta</strong></td><td>Sensitivity to underlying price changes</td></tr>
+          <tr><td><strong>Gamma</strong></td><td>Rate of change of delta</td></tr>
+          <tr><td><strong>Theta</strong></td><td>Time decay per day</td></tr>
+          <tr><td><strong>Vega</strong></td><td>Sensitivity to implied volatility changes</td></tr>
+        </table>
+
+        <h4>Position Statuses</h4>
+        <ul>
+          <li><span class="badge badge-green">Open</span> &mdash; Active position</li>
+          <li><span class="badge badge-gray">Closed</span> &mdash; Position has been exited</li>
+          <li><span class="badge badge-red">Expired</span> &mdash; Option expired worthless</li>
+          <li><span class="badge badge-blue">Exercised</span> &mdash; Option was exercised</li>
+        </ul>
+
+        <h4>P&amp;L Preview</h4>
+        <p>
+          Each position row shows an inline P&amp;L calculation based on entry price vs. current/closed price,
+          number of contracts, and bushels per contract.
+        </p>
+      </div>
+    </details>
+
+    <!-- Deliveries -->
+    <details>
+      <summary>Deliveries</summary>
+      <div class="details-body">
+        <p>
+          Track every load of grain delivered to an elevator. Deliveries can be linked to contracts
+          for settlement tracking.
+        </p>
+
+        <h4>Key Fields</h4>
+        <table>
+          <tr><th>Field</th><th>Description</th></tr>
+          <tr><td>Gross Bushels</td><td>Weight at the scale before shrink deductions</td></tr>
+          <tr><td>Moisture %</td><td>Moisture reading at the elevator</td></tr>
+          <tr><td>Net Bushels</td><td>Auto-calculated after moisture shrink (editable)</td></tr>
+          <tr><td>Test Weight</td><td>Bushel weight from the sample</td></tr>
+          <tr><td>Ticket #</td><td>Scale ticket number for reference</td></tr>
+          <tr><td>Contract</td><td>Link to an open contract for this commodity</td></tr>
+          <tr><td>Settlement</td><td>Dollar amount when settled</td></tr>
+        </table>
+
+        <h4>Moisture Correction</h4>
+        <p>
+          When you enter moisture and gross bushels, the app auto-calculates shrink using industry-standard
+          moisture targets:
+        </p>
+        <table>
+          <tr><th>Commodity</th><th>Target Moisture</th></tr>
+          <tr><td><span class="commodity-dot dot-corn"></span> Corn</td><td>15.0%</td></tr>
+          <tr><td><span class="commodity-dot dot-soy"></span> Soybeans</td><td>13.0%</td></tr>
+          <tr><td><span class="commodity-dot dot-wheat"></span> Wheat</td><td>13.5%</td></tr>
+        </table>
+        <p>
+          If moisture is above the target, shrink is calculated and Net Bushels is reduced accordingly.
+          The shrink preview shows the exact deduction in bushels and percentage. You can always override
+          the net bushels field manually.
+        </p>
+
+        <h4>Summary Cards</h4>
+        <p>
+          At the top of the Deliveries view, four summary cards show: <strong>Gross Bushels</strong>,
+          <strong>Net Bushels</strong>, <strong>Total Shrink</strong>, and <strong>Settlement</strong>
+          totals for the filtered set.
+        </p>
+      </div>
+    </details>
+
+    <!-- Basis -->
+    <details>
+      <summary>Basis</summary>
+      <div class="details-body">
+        <p>
+          The Basis sub-tab shows regional basis data to help you make informed marketing decisions.
+          Select a commodity using the color-coded buttons at the top.
+        </p>
+
+        <h4>Three Sections</h4>
+        <ol>
+          <li>
+            <strong>Current Regional Basis</strong> &mdash; A table of current basis levels by location,
+            including cash price, basis level, and delivery month.
+          </li>
+          <li>
+            <strong>Elevator Basis</strong> &mdash; Shows posted basis for each elevator you have configured
+            in Settings. If no basis data is available for an elevator, it shows "No posted basis."
+          </li>
+          <li>
+            <strong>Seasonal Basis History</strong> &mdash; Historical basis trends by month showing current
+            basis, 1-year ago, 2-year ago, 3-year average, and percentile ranking. Stronger-than-average
+            basis is highlighted in green; weaker in red.
+          </li>
+        </ol>
+
+        <div class="callout callout-tip">
+          <span class="callout-label">Tip</span>
+          Set up your elevator list in Settings first so the Elevator Basis section has data to match against.
+        </div>
+      </div>
+    </details>
+
+    <!-- Inputs -->
+    <details>
+      <summary>Inputs</summary>
+      <div class="details-body">
+        <p>
+          The Inputs sub-tab is new to Grain Marketing (not in the original Grain-Tracker). It tracks
+          <strong>fertilizer purchasing positions</strong> &mdash; prepays, forwards, futures, and options
+          on input costs.
+        </p>
+
+        <h4>Supported Products (12)</h4>
+        <p>
+          <span class="badge badge-green">NH3</span>
+          <span class="badge badge-green">DAP</span>
+          <span class="badge badge-green">MAP</span>
+          <span class="badge badge-green">Potash</span>
+          <span class="badge badge-green">UAN-28</span>
+          <span class="badge badge-green">UAN-32</span>
+          <span class="badge badge-green">Urea</span>
+          <span class="badge badge-green">AMS</span>
+          <span class="badge badge-green">Sulfur</span>
+          <span class="badge badge-green">Zinc</span>
+          <span class="badge badge-green">Boron</span>
+          <span class="badge badge-green">Lime</span>
+        </p>
+
+        <h4>Position Types</h4>
+        <ul>
+          <li><strong>Prepay</strong> &mdash; Paid upfront for a discounted price</li>
+          <li><strong>Forward</strong> &mdash; Locked in a future delivery price with a supplier</li>
+          <li><strong>Futures</strong> &mdash; Exchange-traded fertilizer futures</li>
+          <li><strong>Options</strong> &mdash; Exchange-traded fertilizer options</li>
+        </ul>
+
+        <h4>Fields per Position</h4>
+        <p>
+          Product, tons, price per ton, supplier name, crop year, status (open / delivered / closed), and notes.
+          Summary cards show total open tons, open cost, and number of open positions.
+        </p>
+      </div>
+    </details>
+
+    <!-- Market -->
+    <details>
+      <summary>Market</summary>
+      <div class="details-body">
+        <p>
+          The Market sub-tab displays <strong>live forward curves</strong> from the futures exchanges.
+          Select a commodity and see the full term structure:
+        </p>
+        <table>
+          <tr><th>Column</th><th>Description</th></tr>
+          <tr><td>Month</td><td>Contract month name (e.g., "Jul 2026")</td></tr>
+          <tr><td>Symbol</td><td>Exchange symbol (e.g., "ZCN26")</td></tr>
+          <tr><td>Last</td><td>Last traded price (4 decimals)</td></tr>
+          <tr><td>Change</td><td>Price change vs. settlement (green for up, red for down)</td></tr>
+          <tr><td>Settle</td><td>Previous session's settlement price</td></tr>
+          <tr><td>Volume</td><td>Contracts traded today</td></tr>
+          <tr><td>Open Int</td><td>Open interest (total outstanding contracts)</td></tr>
+        </table>
+        <p>
+          The front month row is highlighted. Click <strong>Refresh</strong> to pull the latest data from the
+          market data feed.
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 6. PRICE LOG -->
+  <!-- ============================================================= -->
+  <section id="price-log">
+    <h2><span class="section-number">6</span> Price Log</h2>
+
+    <p>
+      The Price Log is a historical record of cash prices, basis levels, and futures prices you observe
+      in the market. This is now its own top-level tab (it was inside Settings in Grain-Tracker).
+    </p>
+
+    <div class="tab-mockup">
+      <span>Dashboard</span>
+      <span>Inventory</span>
+      <span>Marketing</span>
+      <span class="tab-active">Price Log</span>
+      <span>P&amp;L</span>
+      <span>Documents</span>
+      <span>Settings</span>
+    </div>
+
+    <h4>Fields per Entry</h4>
+    <table>
+      <tr><th>Field</th><th>Description</th></tr>
+      <tr><td>Date</td><td>Date the price was observed</td></tr>
+      <tr><td>Commodity</td><td>Corn, Soybeans, Wheat, or Heating Oil</td></tr>
+      <tr><td>Cash Price</td><td>Cash (spot) price at that location/date</td></tr>
+      <tr><td>Basis</td><td>Basis level (cash minus futures)</td></tr>
+      <tr><td>Futures Price</td><td>Nearby futures price at that time</td></tr>
+      <tr><td>Futures Month</td><td>Which futures month the price references (e.g., Z26 = Dec 2026)</td></tr>
+      <tr><td>Source</td><td>Where the price came from: manual entry, Databento feed, or Yahoo Finance</td></tr>
+      <tr><td>Notes</td><td>Any context about the price observation</td></tr>
+    </table>
+
+    <p>
+      Use the commodity filter dropdown to view entries for a single commodity. Entries display the most
+      recent 50 records, sorted newest first.
+    </p>
+
+    <div class="callout callout-tip">
+      <span class="callout-label">Tip</span>
+      Make it a habit to log prices regularly. Over time this builds a valuable dataset for reviewing
+      marketing decisions and spotting basis patterns.
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 7. P&L -->
+  <!-- ============================================================= -->
+  <section id="pnl">
+    <h2><span class="section-number">7</span> P&amp;L</h2>
+
+    <p>
+      The P&amp;L (Profit &amp; Loss) tab gives you a comprehensive view of how your marketing program
+      is performing financially. Use the crop year selector at the top to switch between years.
+    </p>
+
+    <details open>
+      <summary>Summary Cards</summary>
+      <div class="details-body">
+        <p>Three large cards at the top:</p>
+        <ul>
+          <li><strong>Realized P&amp;L</strong> &mdash; Profit or loss on delivered contracts and closed positions.</li>
+          <li><strong>Unrealized P&amp;L</strong> &mdash; Mark-to-market P&amp;L on open contracts and open positions (based on current market prices vs. your cost basis).</li>
+          <li><strong>Total P&amp;L</strong> &mdash; Sum of realized + unrealized. Green for profit, red for loss.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Per-Commodity Breakdown</summary>
+      <div class="details-body">
+        <p>
+          A table showing realized and unrealized P&amp;L split by commodity. Each row shows contract realized,
+          contract unrealized, position realized, position unrealized, and net P&amp;L. A totals row sums everything.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Contract P&amp;L Detail</summary>
+      <div class="details-body">
+        <p>
+          Every contract with a calculable effective price is listed individually with: commodity, type, buyer,
+          bushels, effective price, cost basis, P&amp;L per bushel, and total P&amp;L.
+        </p>
+        <p>
+          The <strong>cost basis</strong> comes from Settings (see section 9). If you have not set a cost basis
+          for a commodity, it defaults to $0.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Position P&amp;L Detail</summary>
+      <div class="details-body">
+        <p>
+          Each futures/options position is listed with entry price, current or closed price, number of contracts,
+          side (Long/Short), and calculated P&amp;L.
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 8. DOCUMENTS -->
+  <!-- ============================================================= -->
+  <section id="documents">
+    <h2><span class="section-number">8</span> Documents</h2>
+
+    <p>
+      Upload and organize PDF copies of grain contracts and settlement statements. Documents can be linked
+      to specific contracts for quick reference.
+    </p>
+
+    <h4>Document Types</h4>
+    <ul>
+      <li><strong>Contract</strong> &mdash; Confirmation PDFs from elevators/buyers</li>
+      <li><strong>Settlement</strong> &mdash; Final settlement statements after delivery</li>
+    </ul>
+
+    <h4>How to Upload</h4>
+    <ol class="steps">
+      <li>Click <strong>Upload Document</strong> in the toolbar.</li>
+      <li>Select a PDF file from your device.</li>
+      <li>Choose the document type (Contract or Settlement).</li>
+      <li>Optionally add notes.</li>
+      <li>Click <strong>Upload</strong>. The server will store and process the file.</li>
+    </ol>
+
+    <h4>Parsed Data</h4>
+    <p>
+      After upload, the server-side AI parser attempts to extract structured data from the PDF &mdash;
+      things like commodity, bushels, price, buyer name, and dates. This parsed data appears in a preview
+      column on the documents table. Click "more" to expand all extracted fields.
+    </p>
+
+    <h4>Linking to Contracts</h4>
+    <p>
+      Documents can be linked to specific contracts. Linked documents show the contract details
+      (type, buyer, bushels) right in the documents table.
+    </p>
+
+    <h4>Summary Cards</h4>
+    <p>
+      The top of the page shows Total Documents, Contracts, Settlements, and Linked counts.
+    </p>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 9. SETTINGS -->
+  <!-- ============================================================= -->
+  <section id="settings">
+    <h2><span class="section-number">9</span> Settings</h2>
+
+    <p>
+      Settings control how the app filters data and calculates your marketing metrics.
+      Changes save immediately when you modify a field or click Save.
+    </p>
+
+    <details open>
+      <summary>Active Crop Year</summary>
+      <div class="details-body">
+        <p>
+          Select the crop year you are currently managing. All pages (Dashboard, Marketing, P&amp;L, etc.)
+          filter their data to this year. You can also override the crop year on individual pages using
+          their toolbar dropdowns.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Commodities</summary>
+      <div class="details-body">
+        <p>
+          Shows the 4 active commodities: <span class="commodity-dot dot-corn"></span>Corn,
+          <span class="commodity-dot dot-soy"></span>Soybeans,
+          <span class="commodity-dot dot-wheat"></span>Wheat,
+          <span class="commodity-dot dot-oil"></span>Heating Oil.
+          Configuration for adding or removing commodities is planned for a future update.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Cost Basis</summary>
+      <div class="details-body">
+        <p>
+          Enter your cost of production per bushel (or per gallon for Heating Oil) for each commodity.
+          This is used in the P&amp;L calculations to determine profit per bushel:
+        </p>
+        <p><code>P&amp;L per bu = Effective Price &minus; Cost Basis</code></p>
+        <div class="callout callout-info">
+          <span class="callout-label">Important</span>
+          If you do not set a cost basis, P&amp;L defaults to comparing against $0. Set this accurately
+          for meaningful P&amp;L numbers.
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Bushels Per Contract</summary>
+      <div class="details-body">
+        <p>
+          The standard contract size for each commodity. Defaults:
+        </p>
+        <table>
+          <tr><th>Commodity</th><th>Default</th></tr>
+          <tr><td>Corn</td><td>5,000 bu</td></tr>
+          <tr><td>Soybeans</td><td>5,000 bu</td></tr>
+          <tr><td>Wheat</td><td>5,000 bu</td></tr>
+          <tr><td>Heating Oil</td><td>42,000 gal</td></tr>
+        </table>
+        <p>
+          Adjust if your elevator uses non-standard sizes.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Gross Bushels</summary>
+      <div class="details-body">
+        <p>
+          Total expected production per commodity for the active crop year. This is the denominator in
+          the Dashboard's hedge percentage calculation:
+        </p>
+        <p><code>Hedge % = Committed Bushels &divide; Gross Bushels &times; 100</code></p>
+        <div class="callout callout-warning">
+          <span class="callout-label">Warning</span>
+          If gross bushels is 0 or not set for a commodity, the hedge % will show as "N/A" or 0%.
+          Always set this at the beginning of the marketing year.
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Elevators / Buyers</summary>
+      <div class="details-body">
+        <p>
+          Enter one elevator or buyer name per line. These names populate the buyer dropdown when
+          creating contracts and deliveries, and they are used in the Basis tab's Elevator Basis section
+          to match against regional basis data.
+        </p>
+        <p>
+          Examples:
+        </p>
+        <div class="card" style="font-family: var(--mono); font-size: 13px; padding: 12px 16px; white-space: pre-line;">ADM Petersburg
+Cargill Beardstown
+CHS Jacksonville
+Bunge Havana</div>
+        <p style="margin-top: 12px;">
+          Click <strong>Save Elevators</strong> after editing the list.
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 10. AI ASSISTANT -->
+  <!-- ============================================================= -->
+  <section id="ai-assistant">
+    <h2><span class="section-number">10</span> AI Assistant</h2>
+
+    <p>
+      A chat widget appears in the bottom-right corner of every page. Click it to open a conversation
+      with the AI assistant.
+    </p>
+
+    <h3>What Can You Ask?</h3>
+    <p>
+      The AI has access to 16 specialized tools that can query your grain marketing data. Example questions:
+    </p>
+    <ul>
+      <li>"What's my corn hedge percentage?"</li>
+      <li>"Show me all open contracts"</li>
+      <li>"How many soybeans bushels are unpriced?"</li>
+      <li>"What's my total unrealized P&amp;L for 2026?"</li>
+      <li>"List deliveries this month"</li>
+      <li>"What basis levels are available at ADM?"</li>
+      <li>"Summarize my marketing position"</li>
+    </ul>
+
+    <h3>How It Works</h3>
+    <p>
+      When you send a message, the AI uses Claude (Anthropic's language model) to understand your question,
+      then calls the appropriate tools to query your data from the server. Responses stream in real-time.
+      The AI can chain multiple queries together to answer complex questions.
+    </p>
+
+    <h3>Conversation History</h3>
+    <p>
+      Your conversations are saved automatically. When you reopen the chat widget, you can see your
+      recent conversation history and continue where you left off.
+    </p>
+
+    <div class="callout callout-info">
+      <span class="callout-label">Note</span>
+      The AI has <strong>read-only</strong> access to your data. It can look up contracts, positions,
+      and market data, but it cannot create, modify, or delete anything on your behalf.
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 11. SECURITY -->
+  <!-- ============================================================= -->
+  <section id="security">
+    <h2><span class="section-number">11</span> Security</h2>
+
+    <p>
+      Grain Marketing uses a layered security model to protect your financial data.
+    </p>
+
+    <details open>
+      <summary>Authentication</summary>
+      <div class="details-body">
+        <ul>
+          <li><strong>Google Sign-In</strong> &mdash; Only <code>@holmesfarmsgp.com</code> accounts are accepted.</li>
+          <li><strong>Server sessions</strong> &mdash; Your login session is stored in PostgreSQL, not in a cookie. It persists until you sign out.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>Encryption</summary>
+      <div class="details-body">
+        <p>
+          Your grain marketing data is encrypted using <strong>AES-256-GCM</strong> (the same standard
+          used by banks and government agencies). Here is how the key chain works:
+        </p>
+        <ol>
+          <li>Your password is combined with a random 32-byte salt using <strong>PBKDF2</strong> (310,000 iterations, SHA-256) to derive a 256-bit master encryption key.</li>
+          <li>Your PIN is similarly derived into a PIN key, which is used to wrap (encrypt) the password. This way the server stores a PIN-wrapped copy of the password, never the password itself.</li>
+          <li>Hashes of both PIN and password are stored for verification (100,000 PBKDF2 iterations).</li>
+          <li>When you enter your PIN, the app derives the PIN key, unwraps the password, then derives the master key. The master key is held in your browser session for the duration of the unlock.</li>
+          <li>Data is encrypted/decrypted on the server using the session-held key. When you lock the app or sign out, the key is wiped.</li>
+        </ol>
+        <p>
+          The bottom line: nobody can read your data without your PIN or password &mdash; not even server
+          administrators.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Auto-Lock</summary>
+      <div class="details-body">
+        <p>
+          After <strong>30 minutes of inactivity</strong> (no clicks, keystrokes, or touch events),
+          the app automatically locks and clears all sensitive data from memory. You will need to
+          re-enter your PIN to continue.
+        </p>
+        <p>
+          You can also lock manually by clicking the lock button in the header area, or simply close
+          the browser tab.
+        </p>
+      </div>
+    </details>
+
+    <details>
+      <summary>PIN Lockout</summary>
+      <div class="details-body">
+        <p>
+          After <strong>5 failed PIN attempts</strong>, the app locks you out for 5 minutes.
+          This prevents brute-force guessing. You can always bypass the lockout by switching to
+          the password entry screen ("Forgot PIN?" link).
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 12. MIGRATION -->
+  <!-- ============================================================= -->
+  <section id="migration">
+    <h2><span class="section-number">12</span> Coming from Grain-Tracker</h2>
+
+    <p>
+      If you have been using the original Grain-Tracker (the single-HTML offline app), here is how
+      everything maps to the new Grain Marketing app:
+    </p>
+
+    <table>
+      <tr>
+        <th>Grain-Tracker</th>
+        <th>Grain Marketing</th>
+        <th>Notes</th>
+      </tr>
+      <tr>
+        <td>Dashboard tab</td>
+        <td>Dashboard</td>
+        <td>Same concept &mdash; now with live data from server</td>
+      </tr>
+      <tr>
+        <td>Inventory tab</td>
+        <td>Inventory</td>
+        <td>Same: Crop Fields + Storage sub-tabs</td>
+      </tr>
+      <tr>
+        <td>Marketing tab</td>
+        <td>Marketing</td>
+        <td>Expanded: 6 sub-tabs (added Inputs + Market)</td>
+      </tr>
+      <tr>
+        <td>Price Log (in Settings)</td>
+        <td>Price Log</td>
+        <td>Now its own top-level tab for easier access</td>
+      </tr>
+      <tr>
+        <td>P&amp;L tab</td>
+        <td>P&amp;L</td>
+        <td>Same feature set with per-commodity and per-contract detail</td>
+      </tr>
+      <tr>
+        <td>Documents tab</td>
+        <td>Documents</td>
+        <td>Server-side AI parsing, more reliable than browser-only processing</td>
+      </tr>
+      <tr>
+        <td>Settings tab</td>
+        <td>Settings</td>
+        <td>Same features; Price Log moved out to its own tab</td>
+      </tr>
+      <tr>
+        <td>PIN / Password lock</td>
+        <td>PIN / Password lock</td>
+        <td>Same security model, now server-backed</td>
+      </tr>
+      <tr>
+        <td>localStorage</td>
+        <td>PostgreSQL</td>
+        <td>Your data is backed up daily, accessible from any device</td>
+      </tr>
+      <tr>
+        <td>Single browser</td>
+        <td>Any device</td>
+        <td>Sign in with Google from anywhere</td>
+      </tr>
+      <tr>
+        <td>Export JSON</td>
+        <td>Not needed</td>
+        <td>Data lives on server with daily backups</td>
+      </tr>
+      <tr>
+        <td>&mdash;</td>
+        <td>AI Assistant</td>
+        <td>New: ask questions about your data in natural language</td>
+      </tr>
+      <tr>
+        <td>&mdash;</td>
+        <td>Marketing &rarr; Inputs</td>
+        <td>New: track fertilizer purchasing positions</td>
+      </tr>
+      <tr>
+        <td>&mdash;</td>
+        <td>Marketing &rarr; Market</td>
+        <td>New: live forward curves from exchanges</td>
+      </tr>
+    </table>
+
+    <h3>Data Import</h3>
+    <p>
+      Your existing Grain-Tracker data can be imported into the new system using a server-side import
+      script. Talk to Adam to schedule the import &mdash; you will need your Grain-Tracker encryption
+      password so the script can decrypt and migrate your records.
+    </p>
+
+    <h3>What Stays the Same</h3>
+    <ul>
+      <li>Same 7 contract types (HTA, Cash, Basis, Bushels Only, DP, Min Price, Accumulator)</li>
+      <li>Same 4 contract statuses (Open, Delivered, Cancelled, Split)</li>
+      <li>Same encryption model (PIN + password, AES-256-GCM)</li>
+      <li>Same commodity colors and UI patterns</li>
+      <li>Same P&amp;L calculation methodology</li>
+      <li>Same moisture correction formulas</li>
+    </ul>
+
+    <h3>What is New</h3>
+    <ul>
+      <li>Server-side data storage with daily backups</li>
+      <li>Multi-device access (sign in from any browser)</li>
+      <li>AI assistant for querying your data</li>
+      <li>Fertilizer input position tracking</li>
+      <li>Live forward curves and market data</li>
+      <li>Regional and elevator basis analysis</li>
+      <li>Price Log as its own dedicated tab</li>
+      <li>Light/dark theme toggle</li>
+    </ul>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 13. FAQ -->
+  <!-- ============================================================= -->
+  <section id="faq">
+    <h2><span class="section-number">13</span> FAQ / Troubleshooting</h2>
+
+    <div class="faq-q">Q: What if I forget my PIN?</div>
+    <div class="faq-a">
+      On the lock screen, click <strong>"Forgot PIN?"</strong> to switch to the password entry screen.
+      Enter your master password to unlock.
+    </div>
+
+    <div class="faq-q">Q: What if I forget both my PIN and password?</div>
+    <div class="faq-a">
+      Unfortunately, your encrypted data <strong>cannot be recovered</strong>. This is the same as
+      Grain-Tracker &mdash; the encryption keys are derived from your credentials and are never stored
+      in plaintext. You would need to create a new encryption setup, which starts with a fresh data set.
+    </div>
+
+    <div class="faq-q">Q: Can I use this on my phone?</div>
+    <div class="faq-a">
+      Yes. The app is fully responsive and works on any screen size. For the best mobile experience,
+      you can install it as a <strong>PWA</strong> (Progressive Web App):<br><br>
+      <strong>Android (Chrome):</strong> Tap the three-dot menu and select "Add to Home screen."<br>
+      <strong>iPhone (Safari):</strong> Tap the Share button and select "Add to Home Screen."<br><br>
+      This gives you an app icon on your home screen and a full-screen experience without the browser chrome.
+    </div>
+
+    <div class="faq-q">Q: Where is my data stored?</div>
+    <div class="faq-a">
+      Your data is encrypted and stored in a PostgreSQL database on the <strong>Holmes Farms server</strong>
+      (a Dell PowerEdge R660xs in the office). The database is backed up daily. Your data never leaves
+      the farm's own infrastructure (except when transmitted over HTTPS to your browser).
+    </div>
+
+    <div class="faq-q">Q: Can multiple people use it?</div>
+    <div class="faq-a">
+      Yes. Each person signs in with their own <code>@holmesfarmsgp.com</code> Google account.
+      Each user has their own encryption credentials and data access.
+    </div>
+
+    <div class="faq-q">Q: What happened to the original Grain-Tracker?</div>
+    <div class="faq-a">
+      It is still available and works offline as always. Your data can be imported from Grain-Tracker
+      into the new system using the import script (contact Adam). After import, you can continue
+      using either app, but the server-backed version is the recommended go-forward platform.
+    </div>
+
+    <div class="faq-q">Q: The app shows "No market data available" on the Dashboard.</div>
+    <div class="faq-a">
+      This means the market data feed has not returned prices yet. Click the <strong>Refresh</strong>
+      button in the Position Summary header, or wait for the next auto-refresh cycle (every 5 minutes).
+      If it persists, the market data API may be temporarily unavailable.
+    </div>
+
+    <div class="faq-q">Q: How do I change my PIN or password?</div>
+    <div class="faq-a">
+      Currently, PIN and password are set during initial encryption setup and cannot be changed through
+      the UI. Contact Adam if you need to reset your encryption credentials.
+    </div>
+
+    <div class="faq-q">Q: The lock screen appeared while I was working. Did I lose anything?</div>
+    <div class="faq-a">
+      No. The auto-lock triggers after 30 minutes of inactivity. Any changes you had already saved
+      (clicked a Save button or the data was auto-saved) are safe on the server. Simply re-enter your
+      PIN to continue where you left off. Unsaved form data in an open modal may be lost.
+    </div>
+
+    <div class="faq-q">Q: Can I switch between light and dark mode?</div>
+    <div class="faq-a">
+      Yes. Click the sun/moon icon button in the top-right corner of the header. Your preference is
+      saved in your browser and persists across sessions.
+    </div>
+
+    <div class="faq-q">Q: What are the futures month codes?</div>
+    <div class="faq-a">
+      <table>
+        <tr><th>Code</th><th>Month</th><th>Code</th><th>Month</th></tr>
+        <tr><td><code>F</code></td><td>January</td><td><code>N</code></td><td>July</td></tr>
+        <tr><td><code>G</code></td><td>February</td><td><code>Q</code></td><td>August</td></tr>
+        <tr><td><code>H</code></td><td>March</td><td><code>U</code></td><td>September</td></tr>
+        <tr><td><code>J</code></td><td>April</td><td><code>V</code></td><td>October</td></tr>
+        <tr><td><code>K</code></td><td>May</td><td><code>X</code></td><td>November</td></tr>
+        <tr><td><code>M</code></td><td>June</td><td><code>Z</code></td><td>December</td></tr>
+      </table>
+    </div>
+
+    <hr>
+
+    <p style="text-align: center; color: var(--text3); font-size: 13px; margin-top: 48px;">
+      Holmes Farms Grain Marketing v2.0 &mdash; User Guide<br>
+      Questions? Contact Adam Rohn (adamrohn@holmesfarmsgp.com)
+    </p>
+  </section>
+
+</div>
+
+<script>
+  // ---- Sidebar toggle (mobile) ----
+  (function() {
+    var toggle = document.getElementById('sidebarToggle');
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+
+    toggle.addEventListener('click', function() {
+      if (sidebar.classList.contains('open')) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+
+    // Close sidebar when a nav link is clicked on mobile
+    var links = sidebar.querySelectorAll('a');
+    for (var i = 0; i < links.length; i++) {
+      links[i].addEventListener('click', function() {
+        if (window.innerWidth <= 900) {
+          closeSidebar();
+        }
+      });
+    }
+  })();
+
+  // ---- Active nav highlight on scroll ----
+  (function() {
+    var sections = document.querySelectorAll('section[id]');
+    var navLinks = document.querySelectorAll('.sidebar-nav a');
+
+    function updateActive() {
+      var scrollY = window.scrollY + 80;
+      var current = '';
+
+      for (var i = 0; i < sections.length; i++) {
+        var section = sections[i];
+        if (section.offsetTop <= scrollY) {
+          current = section.getAttribute('id');
+        }
+      }
+
+      for (var j = 0; j < navLinks.length; j++) {
+        navLinks[j].classList.remove('active');
+        if (navLinks[j].getAttribute('href') === '#' + current) {
+          navLinks[j].classList.add('active');
+        }
+      }
+    }
+
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+  })();
+</script>
+
+</body>
+</html>

@@ -15,6 +15,14 @@ function renderSettingsPage() {
       _renderBushelsPerContractSection(settings) +
       _renderGrossBushelsSection(settings, cropYear) +
       _renderElevatorsSection(settings) +
+      '<div class="settings-section">' +
+        '<div class="settings-section-header">' +
+          '<h3 class="settings-section-title">Help</h3>' +
+        '</div>' +
+        '<div class="settings-section-body">' +
+          '<a href="/guide.html" target="_blank" class="btn btn-secondary">Open User Guide</a>' +
+        '</div>' +
+      '</div>' +
     '</div>' +
   '</div>';
 }

@@ -289,6 +289,13 @@ async function build() {
     console.log('  Copied build/manifest.json');
   }
 
+  // 8b. Copy guide.html if present
+  const guidePath = path.join(ROOT, 'guide.html');
+  if (fs.existsSync(guidePath)) {
+    fs.copyFileSync(guidePath, path.join(BUILD_DIR, 'guide.html'));
+    console.log('  Copied build/guide.html');
+  }
+
   // 9. Copy static assets if present
   const assetsDir = path.join(ROOT, 'assets');
   if (fs.existsSync(assetsDir)) {
