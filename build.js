@@ -16,6 +16,8 @@ const JS_FILES = [
   'js/config.js',
   'js/state.js',
   'js/season.js',
+  'js/crypto.js',
+  'js/lock-screen.js',
   'js/db.js',
   'js/auth.js',
   'js/ui.js',
@@ -115,6 +117,14 @@ async function build() {
         // UI utilities
         'esc', 'escapeAttr', 'showToast', 'showLoading', 'hideLoading',
         'showModal', 'closeModal', 'toggleTheme',
+        // Crypto functions
+        'b64', 'unb64', 'cryptoDeriveKey', 'cryptoHashPin',
+        'cryptoExportKey', 'cryptoEncrypt', 'cryptoDecrypt',
+        // Lock screen functions
+        'renderLockScreen', 'showLockPanel', 'lockPinPress', 'lockPinDel',
+        'lockPinClear', 'lockSubmitPin', 'lockSubmitPassword', 'lockSubmitSetup',
+        'lockApp', 'unlockApp', 'lockResetAutoTimer', 'initLockScreen',
+        'checkEncryptionStatus', 'fetchEncryptionParams',
         // Auth functions
         'initGoogleAuth', 'signInWithGoogle',
         'handleAuthResponse', 'tryRestoreSession', 'signOut',

@@ -1919,3 +1919,161 @@ textarea.form-input {
     font-size: 24px;
   }
 }
+
+/* ==================== LOCK SCREEN ==================== */
+
+.lock-overlay {
+  position: fixed;
+  inset: 0;
+  background: #1b2d1f;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-overlay.lock-hidden {
+  display: none;
+}
+
+.lock-card {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.lock-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+
+.lock-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1b2d1f;
+  margin-bottom: 4px;
+}
+
+.lock-subtitle {
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 20px;
+}
+
+/* PIN dots */
+.lock-dots {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.lock-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #c0d8c8;
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.lock-dot.lock-dot-filled {
+  background: #2d6a4f;
+  border-color: #2d6a4f;
+}
+
+/* Numpad */
+.lock-numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 260px;
+  margin: 0 auto 16px;
+}
+
+.lock-numpad-btn {
+  width: 100%;
+  height: 56px;
+  border: 1px solid #c0d8c8;
+  border-radius: 8px;
+  background: #f4f6f4;
+  color: #1b2d1f;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lock-numpad-btn:active {
+  background: #2d6a4f;
+  color: #fff;
+  border-color: #2d6a4f;
+}
+
+.lock-numpad-btn-action {
+  font-size: 13px;
+  font-weight: 600;
+  color: #718096;
+}
+
+/* Lock screen links */
+.lock-link {
+  background: none;
+  border: none;
+  color: #2d6a4f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.lock-link:hover {
+  text-decoration: underline;
+}
+
+/* Lock screen form inputs */
+.lock-card .form-input,
+.lock-card .form-select {
+  background: #f4f6f4;
+  border-color: #c0d8c8;
+  color: #1b2d1f;
+}
+
+.lock-card .form-label {
+  color: #4a5568;
+  text-align: left;
+}
+
+.lock-card .form-group {
+  text-align: left;
+}
+
+.lock-error {
+  color: #c53030;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  min-height: 18px;
+}
+
+/* Shake animation */
+@keyframes lockShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+.lock-shake {
+  animation: lockShake 0.4s ease-out;
+}
+
+/* Lock screen panels */
+.lock-panel { display: none; }
+.lock-panel.lock-panel-active { display: block; }

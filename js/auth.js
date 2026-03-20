@@ -59,7 +59,8 @@ async function handleAuthResponse(response) {
     STATE.role = user.role || 'employee';
     STATE.isManager = STATE.role === 'manager' || STATE.role === 'admin' || STATE.role === 'owner';
 
-    connectAndLoad();
+    // Check encryption status before loading data
+    await _authCheckEncryption();
   } catch (e) {
     showToast('Sign-in failed: ' + e.message, 'error');
   }
@@ -84,7 +85,8 @@ async function tryRestoreSession() {
     STATE.role = user.role || 'employee';
     STATE.isManager = STATE.role === 'manager' || STATE.role === 'admin' || STATE.role === 'owner';
 
-    connectAndLoad();
+    // Check encryption status before loading data
+    await _authCheckEncryption();
     return true;
   } catch (e) {
     renderSignIn();
@@ -109,11 +111,32 @@ function renderSignIn() {
   el.innerHTML =
     '<div class="signin-screen">' +
       '<div class="signin-card">' +
-        '<h1>Holmes Farms</h1>' +
-        '<p class="signin-subtitle">Risk Management</p>' +
+        '<h1>\uD83C\uDF3E Holmes Farms</h1>' +
+        '<p class="signin-subtitle">Grain Marketing</p>' +
         '<button class="btn btn-primary btn-lg btn-submit" onclick="signInWithGoogle()">Sign in with Google</button>' +
         '<p class="signin-hint">Use your @holmesfarmsgp.com account</p>' +
       '</div>' +
     '</div>';
   initGoogleAuth();
+}
+
+// ---- Encryption gate ----
+
+async function _authCheckEncryption() {
+  try {
+    var status = await checkEncryptionStatus();
+    if (!status.hasEncryption) {
+      // New user — show setup wizard
+      initLockScreen();
+      showLockPanel('setup');
+    } else {
+      // Existing user — fetch params and show PIN screen
+      await fetchEncryptionParams();
+      initLockScreen();
+      showLockPanel('pin');
+    }
+  } catch (e) {
+    // If encryption check fails (e.g. table doesn't exist yet), proceed without encryption
+    connectAndLoad();
+  }
 }
