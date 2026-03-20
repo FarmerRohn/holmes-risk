@@ -6,12 +6,12 @@
   <meta name="copyright" content="Copyright (c) 2025-2026 Adam Rohn & Corey Holmes.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#0a0c10">
+  <meta name="theme-color" content="#f4f6f4">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Risk">
-  <title>Holmes Farms — Risk Management</title>
+  <meta name="apple-mobile-web-app-title" content="Grain">
+  <title>Holmes Farms — Grain Marketing</title>
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +20,7 @@
   <script>
     (function() {
       var saved = localStorage.getItem('hf-theme');
-      if (!saved) saved = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      if (!saved) saved = 'light';
       document.documentElement.dataset.theme = saved;
     })();
   </script>
@@ -60,6 +60,8 @@
   <script src="js/pages/documents.js"></script>
   <script src="js/pages/pnl.js"></script>
   <script src="js/pages/settings.js"></script>
+  <script src="js/pages/price-log.js"></script>
+  <script src="js/ai-chat.js"></script>
   <script src="js/pages.js"></script>
   <script src="js/init.js"></script>
 </body>

@@ -8,11 +8,14 @@ var _marketLoading = false;
 // ---- Main page renderer ----
 
 function renderMarketPage() {
-  // Kick off data fetch (will update table via DOM when done)
+  return '<div class="page-content">' + _marketRenderContentForSubTab() + '</div>';
+}
+
+// Content renderer for Marketing sub-tab (no page-content wrapper)
+function _marketRenderContentForSubTab() {
   _marketFetchCurve(_marketSelectedCommodity);
 
-  return '<div class="page-content">' +
-    '<div class="section-header">' +
+  return '<div class="section-header">' +
       '<h2 class="section-title">Forward Curves</h2>' +
       '<button class="btn btn-secondary btn-sm" onclick="marketRefresh()">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>' +
@@ -22,8 +25,7 @@ function renderMarketPage() {
     _marketRenderCommoditySelector() +
     '<div id="marketCurveContainer">' +
       _marketRenderTable() +
-    '</div>' +
-  '</div>';
+    '</div>';
 }
 
 // ---- Commodity Selector ----

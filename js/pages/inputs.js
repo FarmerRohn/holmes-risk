@@ -14,14 +14,17 @@ var FERT_STATUSES = ['open', 'delivered', 'closed'];
 // ---- Main page renderer ----
 
 function renderInputsPage() {
+  return '<div class="page-content">' + _fertRenderContentForSubTab() + '</div>';
+}
+
+// Content renderer for Marketing sub-tab (no page-content wrapper)
+function _fertRenderContentForSubTab() {
   var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
   var items = _fertFilterPositions(STATE.fertPositions || [], cropYear);
 
-  return '<div class="page-content">' +
-    _fertRenderToolbar(cropYear) +
+  return _fertRenderToolbar(cropYear) +
     _fertRenderSummary(items) +
-    _fertRenderTable(items) +
-  '</div>';
+    _fertRenderTable(items);
 }
 
 // ---- Toolbar ----

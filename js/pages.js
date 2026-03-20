@@ -8,12 +8,11 @@ function showPage(tab) {
 function renderPage() {
   switch (STATE.activeTab) {
     case 'dashboard':  return renderDashboardPage();
-    case 'grain':      return renderGrainPage();
-    case 'inputs':     return renderInputsPage();
     case 'inventory':  return renderInventoryPage();
-    case 'market':     return renderMarketPage();
-    case 'documents':  return renderDocumentsPage();
+    case 'marketing':  return renderMarketingPage();
+    case 'pricelog':   return renderPriceLogPage();
     case 'pnl':        return renderPnlPage();
+    case 'documents':  return renderDocumentsPage();
     case 'settings':   return renderSettingsPage();
     default:           return renderDashboardPage();
   }

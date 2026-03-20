@@ -3,19 +3,18 @@
 var _dashboardRefreshTimer = null;
 
 function renderDashboardPage() {
-  // Start auto-refresh for market prices (every 5 minutes)
   _dashboardStartAutoRefresh();
 
-  var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
+  var cropYear = STATE.activeCropYear || (STATE.settings && STATE.settings.activeCropYear) || SEASON.current;
+  var exposure = calcExposure(STATE.contracts, STATE.positions, STATE.settings, cropYear);
+  var pl = calcPL(STATE.contracts, STATE.positions, STATE.settings, STATE.marketPrices);
+  var netDelta = calcNetDelta(STATE.positions);
 
   return '<div class="page-content">' +
     _renderFuturesStrip() +
-    '<div class="dash-section-label">Key Performance Indicators</div>' +
-    _renderKpiCards() +
-    '<div class="dash-section-label">Exposure Buckets</div>' +
-    _renderExposureBuckets() +
-    '<div class="dash-section-label">Quick Stats</div>' +
-    _renderQuickStats(cropYear) +
+    _renderHedgeSummaryTable(exposure, pl, netDelta) +
+    _renderCommodityRows(exposure) +
+    _renderRecentContracts() +
   '</div>';
 }
 
@@ -32,7 +31,7 @@ function _renderFuturesStrip() {
       var q = prices[i];
       var commodity = q.commodity || q.symbol || '';
       var color = COMMODITY_COLORS[commodity] || 'var(--text)';
-      var price = q.lastPrice != null ? _dashFmtPrice(q.lastPrice) : '—';
+      var price = q.lastPrice != null ? _dashFmtPrice(q.lastPrice) : '\u2014';
       html += '<div class="futures-chip" style="border-color: ' + color + '">' +
         '<span class="futures-chip-name" style="color: ' + color + '">' + esc(commodity) + '</span>' +
         '<span class="futures-chip-price">' + esc(price) + '</span>' +
@@ -44,156 +43,122 @@ function _renderFuturesStrip() {
   return html;
 }
 
-// ---- KPI Cards ----
+// ---- Hedge Position Summary Table ----
 
-function _renderKpiCards() {
-  var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
-  var exposure = calcExposure(STATE.contracts, STATE.positions, STATE.settings, cropYear);
-  var pl = calcPL(STATE.contracts, STATE.positions, STATE.settings, STATE.marketPrices);
-  var netDelta = calcNetDelta(STATE.positions);
-
-  var hedgeVal = _dashFmtPct(exposure.totals.hedgePct);
-  var deltaVal = _dashFmtDelta(netDelta) + ' bu';
-  var plVal = _dashFmtDollars(pl.unrealized);
-  var committedVal = _dashFmtNum(exposure.totals.committed) + ' bu';
-
-  // Color unrealized P&L
-  var plCls = 'kpi-pnl';
-  if (pl.unrealized > 0) plCls = 'kpi-pnl kpi-pnl-positive';
-  else if (pl.unrealized < 0) plCls = 'kpi-pnl kpi-pnl-negative';
-
-  var kpis = [
-    { label: 'Hedge %',          value: hedgeVal,      icon: _dashIconShield(), cls: 'kpi-hedge' },
-    { label: 'Net Delta',        value: deltaVal,      icon: _dashIconDelta(),  cls: 'kpi-delta' },
-    { label: 'Unrealized P&L',   value: plVal,         icon: _dashIconDollar(), cls: plCls },
-    { label: 'Total Committed',  value: committedVal,  icon: _dashIconTruck(),  cls: 'kpi-committed' }
-  ];
-
-  var html = '<div class="kpi-grid">';
-  for (var i = 0; i < kpis.length; i++) {
-    var k = kpis[i];
-    html += '<div class="kpi-card ' + k.cls + '">' +
-      '<div class="kpi-icon">' + k.icon + '</div>' +
-      '<div class="kpi-value">' + k.value + '</div>' +
-      '<div class="kpi-label">' + esc(k.label) + '</div>' +
-    '</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
-// ---- Exposure Buckets ----
-
-function _renderExposureBuckets() {
-  var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
-  var exposure = calcExposure(STATE.contracts, STATE.positions, STATE.settings, cropYear);
+function _renderHedgeSummaryTable(exposure, pl, netDelta) {
   var t = exposure.totals;
 
-  var buckets = [
-    { label: 'Priced Open',    value: _dashFmtNum(t.pricedOpen) + ' bu' },
-    { label: 'Basis Open',     value: _dashFmtNum(t.basisOpen) + ' bu' },
-    { label: 'Sold/Delivered', value: _dashFmtNum(t.soldDelivered) + ' bu' },
-    { label: 'Unpriced',       value: _dashFmtNum(t.unpriced) + ' bu' },
-    { label: 'Options \u0394 Bu', value: _dashFmtDelta(t.optionsDeltaBu) + ' bu' }
-  ];
+  // Color helpers
+  var hedgeColor = t.hedgePct > 80 ? 'var(--green)' : (t.hedgePct >= 50 ? 'var(--amber)' : 'var(--red)');
+  var plColor = pl.unrealized > 0 ? 'var(--green)' : (pl.unrealized < 0 ? 'var(--red)' : 'var(--text)');
 
-  var html = '<div class="exposure-grid">';
-  for (var i = 0; i < buckets.length; i++) {
-    var b = buckets[i];
-    html += '<div class="exposure-card">' +
-      '<div class="exposure-value">' + b.value + '</div>' +
-      '<div class="exposure-label">' + esc(b.label) + '</div>' +
+  return '<div class="section-header" style="margin-top:8px">' +
+      '<span class="section-title">Position Summary</span>' +
+      '<button class="btn btn-secondary btn-sm" onclick="dashboardRefreshPrices()">Refresh</button>' +
+    '</div>' +
+    '<div class="table-wrap" style="margin-bottom:20px">' +
+      '<table>' +
+        '<thead><tr>' +
+          '<th>Metric</th>' +
+          '<th style="text-align:right">Value</th>' +
+        '</tr></thead>' +
+        '<tbody>' +
+          '<tr><td>Hedge %</td><td style="text-align:right;font-family:var(--mono);font-weight:700;color:' + hedgeColor + '">' + _dashFmtPct(t.hedgePct) + '</td></tr>' +
+          '<tr><td>Total Committed</td><td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(t.committed) + ' bu</td></tr>' +
+          '<tr><td>Priced Open</td><td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(t.pricedOpen) + ' bu</td></tr>' +
+          '<tr><td>Basis Open</td><td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(t.basisOpen) + ' bu</td></tr>' +
+          '<tr><td>Unpriced</td><td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(t.unpriced) + ' bu</td></tr>' +
+          '<tr><td>Net Delta</td><td style="text-align:right;font-family:var(--mono);color:var(--blue)">' + _dashFmtDelta(netDelta) + ' bu</td></tr>' +
+          '<tr><td>Unrealized P&L</td><td style="text-align:right;font-family:var(--mono);font-weight:700;color:' + plColor + '">' + _dashFmtDollars(pl.unrealized) + '</td></tr>' +
+        '</tbody>' +
+      '</table>' +
     '</div>';
-  }
-  html += '</div>';
-
-  // Per-commodity breakdown
-  html += _renderCommodityBreakdown(exposure);
-
-  return html;
 }
 
-// ---- Per-commodity exposure breakdown ----
+// ---- Per-Commodity Rows ----
 
-function _renderCommodityBreakdown(exposure) {
+function _renderCommodityRows(exposure) {
   var commodities = Object.keys(exposure.byCommodity);
   if (commodities.length === 0) return '';
 
-  // Sort alphabetically
   commodities.sort();
 
-  var html = '<div class="commodity-breakdown">';
+  var html = '<div class="section-header"><span class="section-title">By Commodity</span></div>' +
+    '<div class="table-wrap" style="margin-bottom:20px">' +
+      '<table>' +
+        '<thead><tr>' +
+          '<th>Commodity</th>' +
+          '<th style="text-align:right">Gross Bu</th>' +
+          '<th style="text-align:right">Committed</th>' +
+          '<th style="text-align:right">Unpriced</th>' +
+          '<th style="text-align:right">Hedge %</th>' +
+        '</tr></thead>' +
+        '<tbody>';
+
   for (var i = 0; i < commodities.length; i++) {
     var comm = commodities[i];
     var data = exposure.byCommodity[comm];
     var color = COMMODITY_COLORS[comm] || 'var(--text)';
     var hedgePct = data.hedgePct;
-    var clampedPct = Math.min(Math.max(hedgePct, 0), 100);
+    var hedgeColor = hedgePct > 80 ? 'var(--green)' : (hedgePct >= 50 ? 'var(--amber)' : 'var(--red)');
 
-    // Hedge color: <50% red, 50-80% amber, >80% green
-    var hedgeColor = 'var(--red)';
-    if (hedgePct > 80) hedgeColor = 'var(--green)';
-    else if (hedgePct >= 50) hedgeColor = 'var(--amber)';
-
-    html += '<div class="commodity-row">' +
-      '<div class="commodity-row-header">' +
-        '<span class="commodity-row-name" style="color:' + color + '">' + esc(comm) + '</span>' +
-        '<span class="commodity-row-hedge" style="color:' + hedgeColor + '">' + _dashFmtPct(hedgePct) + '</span>' +
-      '</div>' +
-      '<div class="commodity-row-bar">' +
-        '<div class="commodity-row-bar-fill" style="width:' + clampedPct.toFixed(1) + '%;background:' + hedgeColor + '"></div>' +
-      '</div>' +
-      '<div class="commodity-row-stats">' +
-        '<span>Gross: ' + _dashFmtNum(data.grossBushels) + ' bu</span>' +
-        '<span>Committed: ' + _dashFmtNum(data.committed) + ' bu</span>' +
-      '</div>' +
-    '</div>';
+    html += '<tr>' +
+      '<td><span class="grain-commodity-dot" style="background:' + color + '"></span> ' + esc(comm) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(data.grossBushels) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(data.committed) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(data.unpriced) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono);font-weight:700;color:' + hedgeColor + '">' + _dashFmtPct(hedgePct) + '</td>' +
+    '</tr>';
   }
-  html += '</div>';
+
+  html += '</tbody></table></div>';
   return html;
 }
 
-// ---- Quick Stats ----
+// ---- Recent Contracts ----
 
-function _renderQuickStats(cropYear) {
-  var openContracts = 0;
-  var openPositions = 0;
+function _renderRecentContracts() {
+  var contracts = STATE.contracts || [];
+  if (contracts.length === 0) return '';
 
-  // Count open contracts for the active crop year
-  if (STATE.contracts && STATE.contracts.length) {
-    for (var i = 0; i < STATE.contracts.length; i++) {
-      if (STATE.contracts[i].status === 'Open') openContracts++;
-    }
+  // Sort by createdAt desc, take 5
+  var sorted = contracts.slice().sort(function(a, b) {
+    return (b.createdAt || '').localeCompare(a.createdAt || '');
+  });
+  if (sorted.length > 5) sorted = sorted.slice(0, 5);
+
+  var html = '<div class="section-header"><span class="section-title">Recent Contracts</span></div>' +
+    '<div class="table-wrap">' +
+      '<table>' +
+        '<thead><tr>' +
+          '<th>Commodity</th>' +
+          '<th>Type</th>' +
+          '<th style="text-align:right">Bushels</th>' +
+          '<th style="text-align:right">Price</th>' +
+          '<th>Status</th>' +
+        '</tr></thead>' +
+        '<tbody>';
+
+  for (var i = 0; i < sorted.length; i++) {
+    var c = sorted[i];
+    var color = COMMODITY_COLORS[c.commodity] || 'var(--text)';
+    var effPrice = calcEffectivePrice(c);
+    var priceStr = effPrice != null ? _dashFmtPrice(effPrice) : '\u2014';
+
+    // Status badge
+    var statusCls = 'grain-status grain-status-' + (c.status || 'open').toLowerCase();
+
+    html += '<tr>' +
+      '<td><span class="grain-commodity-dot" style="background:' + color + '"></span> ' + esc(c.commodity || '') + '</td>' +
+      '<td>' + esc(c.contractType || '') + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + _dashFmtNum(c.bushels) + '</td>' +
+      '<td style="text-align:right;font-family:var(--mono)">' + priceStr + '</td>' +
+      '<td><span class="' + statusCls + '">' + esc(c.status || '') + '</span></td>' +
+    '</tr>';
   }
-  if (STATE.positions && STATE.positions.length) {
-    for (var j = 0; j < STATE.positions.length; j++) {
-      if (STATE.positions[j].status !== 'Closed') openPositions++;
-    }
-  }
 
-  return '<div class="quick-stats-row">' +
-    '<div class="quick-stat-card">' +
-      '<div class="quick-stat-icon">' + _dashIconCalendar() + '</div>' +
-      '<div class="quick-stat-content">' +
-        '<div class="quick-stat-value">' + esc(cropYear) + '</div>' +
-        '<div class="quick-stat-label">Active Crop Year</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="quick-stat-card">' +
-      '<div class="quick-stat-icon">' + _dashIconFile() + '</div>' +
-      '<div class="quick-stat-content">' +
-        '<div class="quick-stat-value">' + openContracts + '</div>' +
-        '<div class="quick-stat-label">Open Contracts</div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="quick-stat-card">' +
-      '<div class="quick-stat-icon">' + _dashIconChart() + '</div>' +
-      '<div class="quick-stat-content">' +
-        '<div class="quick-stat-value">' + openPositions + '</div>' +
-        '<div class="quick-stat-label">Open Positions</div>' +
-      '</div>' +
-    '</div>' +
-  '</div>';
+  html += '</tbody></table></div>';
+  return html;
 }
 
 // ---- Auto-refresh ----
@@ -273,34 +238,4 @@ function _dashFmtDelta(n) {
   if (n > 0) return '+' + str;
   if (n < 0) return '-' + str;
   return '0';
-}
-
-// ---- SVG Icons ----
-
-function _dashIconShield() {
-  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
-}
-
-function _dashIconDelta() {
-  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20L12 2z"/></svg>';
-}
-
-function _dashIconDollar() {
-  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>';
-}
-
-function _dashIconTruck() {
-  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>';
-}
-
-function _dashIconCalendar() {
-  return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
-}
-
-function _dashIconFile() {
-  return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
-}
-
-function _dashIconChart() {
-  return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>';
 }

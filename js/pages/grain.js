@@ -17,7 +17,7 @@ var _grainContractHedges = {};
 // Cache for contract rolls (keyed by contractId)
 var _grainContractRolls = {};
 
-// Sub-tab state: 'contracts', 'positions', 'deliveries', 'basis'
+// Sub-tab state: 'contracts', 'positions', 'deliveries', 'basis', 'inputs', 'market'
 var _grainSubTab = 'contracts';
 
 // ---- Sub-tab bar ----
@@ -27,7 +27,9 @@ function _grainRenderSubTabBar() {
     { id: 'contracts',  label: 'Contracts' },
     { id: 'positions',  label: 'Positions' },
     { id: 'deliveries', label: 'Deliveries' },
-    { id: 'basis',      label: 'Basis' }
+    { id: 'basis',      label: 'Basis' },
+    { id: 'inputs',     label: 'Inputs' },
+    { id: 'market',     label: 'Market' }
   ];
   var html = '<div class="grain-subtab-bar">';
   for (var i = 0; i < tabs.length; i++) {
@@ -45,16 +47,21 @@ function grainSwitchSubTab(tab) {
 
 // ---- Main page renderer ----
 
-function renderGrainPage() {
+function renderMarketingPage() {
   var subTabBar = _grainRenderSubTabBar();
 
   switch (_grainSubTab) {
     case 'positions':  return '<div class="page-content">' + subTabBar + _posRenderContent() + '</div>';
     case 'deliveries': return '<div class="page-content">' + subTabBar + _deliveryRenderContent() + '</div>';
     case 'basis':      return '<div class="page-content">' + subTabBar + _basisRenderContent() + '</div>';
+    case 'inputs':     return '<div class="page-content">' + subTabBar + _fertRenderContentForSubTab() + '</div>';
+    case 'market':     return '<div class="page-content">' + subTabBar + _marketRenderContentForSubTab() + '</div>';
     default:           return _grainRenderContractsView(subTabBar);
   }
 }
+
+// Backward compatibility alias
+var renderGrainPage = renderMarketingPage;
 
 function _grainRenderContractsView(subTabBar) {
   var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;

@@ -85,9 +85,12 @@ function toggleTheme() {
 
 function renderHeader() {
   var name = (STATE.user && STATE.user.name) || STATE.userEmail || '';
+  var cropYear = STATE.activeCropYear || (STATE.settings && STATE.settings.activeCropYear) || SEASON.current;
   return '<header class="app-header">' +
     '<div class="header-left">' +
-      '<span class="page-title">Risk Management</span>' +
+      '<span class="app-icon">\uD83C\uDF3E</span>' +
+      '<span class="page-title">Grain Marketing</span>' +
+      '<span class="crop-year-badge">' + esc(cropYear) + '</span>' +
     '</div>' +
     '<div class="header-right">' +
       '<span class="header-user">' + esc(name) + '</span>' +
@@ -105,12 +108,11 @@ function renderHeader() {
 
 var TAB_CONFIG = [
   { id: 'dashboard', label: 'Dashboard' },
-  { id: 'grain', label: 'Grain' },
-  { id: 'inputs', label: 'Inputs' },
   { id: 'inventory', label: 'Inventory' },
-  { id: 'market', label: 'Market' },
-  { id: 'documents', label: 'Documents' },
+  { id: 'marketing', label: 'Marketing' },
+  { id: 'pricelog', label: 'Price Log' },
   { id: 'pnl', label: 'P&L' },
+  { id: 'documents', label: 'Documents' },
   { id: 'settings', label: 'Settings' }
 ];
 

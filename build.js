@@ -33,6 +33,7 @@ const JS_FILES = [
   'js/pages/documents.js',
   'js/pages/pnl.js',
   'js/pages/settings.js',
+  'js/pages/price-log.js',
   'js/ai-chat.js',
   'js/pages.js',
   'js/init.js'
@@ -150,10 +151,13 @@ async function build() {
         'fetchForwardCurveDB', 'fetchBasisDB', 'fetchBasisHistoryDB',
         'fetchIvAnalyticsDB', 'fetchSpreadsDB', 'fetchOptionsChainDB', 'fetchSignalsDB',
         // Page renderers
-        'renderDashboardPage', 'renderGrainPage', 'renderPositionsPage',
+        'renderDashboardPage', 'renderGrainPage', 'renderMarketingPage',
+        'renderPositionsPage',
         'renderDeliveriesPage', 'renderBasisPage', 'renderInputsPage',
         'renderInventoryPage', 'renderMarketPage', 'renderDocumentsPage',
         'renderPnlPage', 'pnlApplyCropYear', 'renderSettingsPage',
+        'renderPriceLogPage',
+        '_fertRenderContentForSubTab', '_marketRenderContentForSubTab',
         // Dashboard page functions
         'dashboardRefreshPrices',
         // Grain page functions
