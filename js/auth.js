@@ -24,8 +24,8 @@ function signInWithGoogle() {
       if (!btnContainer) {
         btnContainer = document.createElement('div');
         btnContainer.id = 'googleSignInBtn';
-        var signinCard = document.querySelector('.signin-card');
-        if (signinCard) signinCard.appendChild(btnContainer);
+        var loginCard = document.querySelector('.login-card');
+        if (loginCard) loginCard.appendChild(btnContainer);
       }
       google.accounts.id.renderButton(btnContainer, {
         theme: 'outline', size: 'large', text: 'signin_with', width: 280
@@ -109,12 +109,17 @@ function renderSignIn() {
   if (!el) return;
   hideLoading();
   el.innerHTML =
-    '<div class="signin-screen">' +
-      '<div class="signin-card">' +
-        '<h1>\uD83C\uDF3E Holmes Farms</h1>' +
-        '<p class="signin-subtitle">Grain Marketing</p>' +
-        '<button class="btn btn-primary btn-lg btn-submit" onclick="signInWithGoogle()">Sign in with Google</button>' +
-        '<p class="signin-hint">Use your @holmesfarmsgp.com account</p>' +
+    '<div class="login-screen">' +
+      '<div class="login-card">' +
+        '<h1 class="login-title">Holmes Farms</h1>' +
+        '<div class="login-subtitle">Grain Marketing</div>' +
+        '<div id="authStatus" class="auth-status pending">' +
+          '<span>&#9679;</span> Sign in with Google to continue' +
+        '</div>' +
+        '<button class="google-btn" onclick="signInWithGoogle()" id="googleSignInBtn">' +
+          'Sign in with Google' +
+        '</button>' +
+        '<div style="margin-top:24px;font-size:10px;color:var(--text3);text-align:center">&copy; 2025&ndash;2026 Adam Rohn</div>' +
       '</div>' +
     '</div>';
   initGoogleAuth();

@@ -117,7 +117,7 @@
 
   // ── Recent queries (landing state) ──
   function loadRecentQueries() {
-    var base = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) ? CONFIG.API_BASE : '';
+    var base = '';
     fetch(base + '/api/ai/history?limit=10', { credentials: 'include' })
       .then(function(r) { return r.ok ? r.json() : []; })
       .then(function(rows) {
@@ -167,7 +167,7 @@
     scrollBottom();
 
     // Stream response
-    var base = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) ? CONFIG.API_BASE : '';
+    var base = '';
     fetch(base + '/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -273,7 +273,7 @@
   };
 
   AI.searchHistory = function(query) {
-    var base = (typeof CONFIG !== 'undefined' && CONFIG.API_BASE) ? CONFIG.API_BASE : '';
+    var base = '';
     var url = base + '/api/ai/history?limit=50' + (query ? '&search=' + encodeURIComponent(query) : '');
     fetch(url, { credentials: 'include' })
       .then(function(r) { return r.ok ? r.json() : []; })

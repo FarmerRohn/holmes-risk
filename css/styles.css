@@ -1,6 +1,7 @@
 /* ==================== DESIGN TOKENS ==================== */
 /* Light-first (Grain-Tracker palette: forest green + amber) */
 :root {
+  color-scheme: light;
   --bg: #f4f6f4;
   --surface: #ffffff;
   --surface2: #f0f4f1;
@@ -25,9 +26,13 @@
   --radius-sm: 6px;
   --overlay-bg: rgba(244, 246, 244, 0.92);
   --modal-backdrop: rgba(0, 0, 0, 0.4);
+  --google-btn-bg: #fff;
+  --google-btn-text: #333;
+  --google-btn-hover: #eee;
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg: #0a0c10;
   --surface: #12151c;
   --surface2: #1a1e28;
@@ -48,13 +53,16 @@
   --soy: #5dade2;
   --overlay-bg: rgba(10, 12, 16, 0.85);
   --modal-backdrop: rgba(0, 0, 0, 0.6);
+  --google-btn-bg: #fff;
+  --google-btn-text: #333;
+  --google-btn-hover: #f5f5f5;
 }
 
 /* ==================== RESET ==================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  font-size: 15px;
+  font-size: 14px;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -72,38 +80,65 @@ input, select, button, textarea {
   font-size: inherit;
 }
 
-/* ==================== SIGN-IN ==================== */
-.signin-screen {
+/* ==================== LOGIN SCREEN ==================== */
+
+.login-screen {
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100dvh;
-  padding: 24px;
+  background: radial-gradient(circle at 20% 80%, rgba(45, 106, 79, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(233, 185, 73, 0.08) 0%, transparent 50%),
+              var(--bg);
 }
 
-.signin-card {
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px;
+  width: 440px;
   text-align: center;
-  max-width: 360px;
+}
+
+.login-title { font-size: 24px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 4px; }
+.login-subtitle { color: var(--text2); font-size: 13px; margin-bottom: 32px; }
+
+.google-btn {
   width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--google-btn-bg);
+  color: var(--google-btn-text);
+  margin-bottom: 12px;
 }
 
-.signin-card h1 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
+.google-btn:hover { background: var(--google-btn-hover); }
+.google-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.signin-subtitle {
-  color: var(--text2);
-  font-size: 15px;
-  margin-bottom: 32px;
-}
-
-.signin-hint {
-  color: var(--text3);
+.auth-status {
+  padding: 12px 16px;
+  border-radius: 10px;
   font-size: 13px;
-  margin-top: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
+
+.auth-status.success { background: var(--green-dim); color: var(--green); }
+.auth-status.pending { background: var(--amber-dim); color: var(--amber); }
+.auth-status.error { background: var(--red-dim); color: var(--red); }
 
 /* ==================== BUTTONS ==================== */
 .btn {

@@ -51,6 +51,8 @@ function hideLoading() {
 
 // ---- Modal Dialog ----
 
+var _modalKeyHandler = null;
+
 function showModal(html) {
   closeModal();
   var backdrop = document.createElement('div');
@@ -60,16 +62,36 @@ function showModal(html) {
 
   var modal = document.createElement('div');
   modal.className = 'modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
   modal.innerHTML = html;
   backdrop.appendChild(modal);
   document.body.appendChild(backdrop);
   document.body.style.overflow = 'hidden';
+
+  _modalKeyHandler = function(e) {
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Tab') {
+      var focusable = modal.querySelectorAll('button,input,select,textarea,a,[tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+  document.addEventListener('keydown', _modalKeyHandler);
+  var firstFocusable = modal.querySelector('button,input,select,textarea');
+  if (firstFocusable) setTimeout(function() { firstFocusable.focus(); }, 50);
 }
 
 function closeModal() {
   var el = document.getElementById('modalBackdrop');
   if (el) el.remove();
   document.body.style.overflow = '';
+  if (_modalKeyHandler) {
+    document.removeEventListener('keydown', _modalKeyHandler);
+    _modalKeyHandler = null;
+  }
 }
 
 // ---- Theme Toggle ----

@@ -289,6 +289,15 @@ async function build() {
     console.log('  Copied build/manifest.json');
   }
 
+  // 8a. Copy service worker with cache version injection
+  const swPath = path.join(ROOT, 'sw.js');
+  if (fs.existsSync(swPath)) {
+    let swContent = fs.readFileSync(swPath, 'utf8');
+    swContent = swContent.replace(/__SW_CACHE_VERSION__/, jsHash);
+    fs.writeFileSync(path.join(BUILD_DIR, 'sw.js'), swContent);
+    console.log('  Wrote build/sw.js (cache: hf-risk-' + jsHash + ')');
+  }
+
   // 8b. Copy guide.html if present
   const guidePath = path.join(ROOT, 'guide.html');
   if (fs.existsSync(guidePath)) {

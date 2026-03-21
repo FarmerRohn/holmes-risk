@@ -62,4 +62,11 @@ function navigate(tab) {
 // Boot
 document.addEventListener('DOMContentLoaded', function() {
   tryRestoreSession();
+
+  // Register service worker for PWA caching
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(function(e) {
+      console.warn('SW registration failed:', e.message);
+    });
+  }
 });
