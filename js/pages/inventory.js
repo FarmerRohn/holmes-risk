@@ -114,14 +114,14 @@ function _invRenderCropTable(items) {
 
   var html = '<div class="table-wrap"><table>' +
     '<thead><tr>' +
-      '<th>Field</th>' +
-      '<th>Commodity</th>' +
-      '<th style="text-align:right">Acres</th>' +
-      '<th style="text-align:right">Yield Est</th>' +
-      '<th style="text-align:right">Expected Bu</th>' +
-      '<th style="text-align:right">Actual Bu</th>' +
-      '<th>Notes</th>' +
-      '<th>Actions</th>' +
+      '<th scope="col">Field</th>' +
+      '<th scope="col">Commodity</th>' +
+      '<th scope="col" style="text-align:right">Acres</th>' +
+      '<th scope="col" style="text-align:right">Yield Est</th>' +
+      '<th scope="col" style="text-align:right">Expected Bu</th>' +
+      '<th scope="col" style="text-align:right">Actual Bu</th>' +
+      '<th scope="col">Notes</th>' +
+      '<th scope="col">Actions</th>' +
     '</tr></thead><tbody>';
 
   var totalAcres = 0;
@@ -395,12 +395,12 @@ function _invRenderStorageTable(items) {
 
   var html = '<div class="table-wrap"><table>' +
     '<thead><tr>' +
-      '<th>Location</th>' +
-      '<th>Commodity</th>' +
-      '<th style="text-align:right">Bushels</th>' +
-      '<th>Date Filled</th>' +
-      '<th>Notes</th>' +
-      '<th>Actions</th>' +
+      '<th scope="col">Location</th>' +
+      '<th scope="col">Commodity</th>' +
+      '<th scope="col" style="text-align:right">Bushels</th>' +
+      '<th scope="col">Date Filled</th>' +
+      '<th scope="col">Notes</th>' +
+      '<th scope="col">Actions</th>' +
     '</tr></thead><tbody>';
 
   for (var i = 0; i < items.length; i++) {

@@ -106,17 +106,17 @@ function _posRenderPositionList(positions) {
 function _posRenderTable(positions) {
   var html = '<div class="table-wrap"><table>' +
     '<thead><tr>' +
-      '<th>Commodity</th>' +
-      '<th>Type</th>' +
-      '<th>Side</th>' +
-      '<th style="text-align:right">Contracts</th>' +
-      '<th>Underlying</th>' +
-      '<th style="text-align:right">Entry</th>' +
-      '<th style="text-align:right">Current</th>' +
-      '<th style="text-align:right">P&amp;L</th>' +
-      '<th style="text-align:right">Delta</th>' +
-      '<th>Status</th>' +
-      '<th>Actions</th>' +
+      '<th scope="col">Commodity</th>' +
+      '<th scope="col">Type</th>' +
+      '<th scope="col">Side</th>' +
+      '<th scope="col" style="text-align:right">Contracts</th>' +
+      '<th scope="col">Underlying</th>' +
+      '<th scope="col" style="text-align:right">Entry</th>' +
+      '<th scope="col" style="text-align:right">Current</th>' +
+      '<th scope="col" style="text-align:right">P&amp;L</th>' +
+      '<th scope="col" style="text-align:right">Delta</th>' +
+      '<th scope="col">Status</th>' +
+      '<th scope="col">Actions</th>' +
     '</tr></thead>' +
     '<tbody>';
 

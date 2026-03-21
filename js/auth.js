@@ -140,6 +140,9 @@ async function _authCheckEncryption() {
       initLockScreen();
       showLockPanel('pin');
     }
+    // Make the lock overlay visible (it starts display:none)
+    var overlay = document.getElementById('lockOverlay');
+    if (overlay) overlay.style.display = '';
   } catch (e) {
     // If encryption check fails (e.g. table doesn't exist yet), proceed without encryption
     connectAndLoad();

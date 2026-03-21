@@ -219,15 +219,15 @@ function _grainGroupContracts(contracts, groupBy) {
 function _grainRenderTable(contracts) {
   var html = '<div class="table-wrap"><table>' +
     '<thead><tr>' +
-      '<th>Commodity</th>' +
-      '<th>Type</th>' +
-      '<th style="text-align:right">Bushels</th>' +
-      '<th style="text-align:right">Price</th>' +
-      '<th style="text-align:right">Basis</th>' +
-      '<th>Futures Mo</th>' +
-      '<th>Buyer</th>' +
-      '<th>Status</th>' +
-      '<th>Actions</th>' +
+      '<th scope="col">Commodity</th>' +
+      '<th scope="col">Type</th>' +
+      '<th scope="col" style="text-align:right">Bushels</th>' +
+      '<th scope="col" style="text-align:right">Price</th>' +
+      '<th scope="col" style="text-align:right">Basis</th>' +
+      '<th scope="col">Futures Mo</th>' +
+      '<th scope="col">Buyer</th>' +
+      '<th scope="col">Status</th>' +
+      '<th scope="col">Actions</th>' +
     '</tr></thead>' +
     '<tbody>';
 
@@ -395,16 +395,16 @@ function _grainRenderHedgesContent(contractId) {
 
   var html = '<div class="table-wrap"><table class="hedge-table">' +
     '<thead><tr>' +
-      '<th>Type</th>' +
-      '<th>Symbol</th>' +
-      '<th style="text-align:right">Strike</th>' +
-      '<th style="text-align:right">Contracts</th>' +
-      '<th style="text-align:right">Entry</th>' +
-      '<th style="text-align:right">Current</th>' +
-      '<th style="text-align:right">Delta</th>' +
-      '<th style="text-align:right">Theta</th>' +
-      '<th>Status</th>' +
-      '<th>Actions</th>' +
+      '<th scope="col">Type</th>' +
+      '<th scope="col">Symbol</th>' +
+      '<th scope="col" style="text-align:right">Strike</th>' +
+      '<th scope="col" style="text-align:right">Contracts</th>' +
+      '<th scope="col" style="text-align:right">Entry</th>' +
+      '<th scope="col" style="text-align:right">Current</th>' +
+      '<th scope="col" style="text-align:right">Delta</th>' +
+      '<th scope="col" style="text-align:right">Theta</th>' +
+      '<th scope="col">Status</th>' +
+      '<th scope="col">Actions</th>' +
     '</tr></thead>' +
     '<tbody>';
 

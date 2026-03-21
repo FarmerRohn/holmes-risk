@@ -140,18 +140,18 @@ function _deliveryRenderTable(deliveries) {
 
   var html = '<div class="table-wrap"><table>' +
     '<thead><tr>' +
-      '<th>Date</th>' +
-      '<th>Commodity</th>' +
-      '<th>Buyer</th>' +
-      '<th>Ticket #</th>' +
-      '<th style="text-align:right">Gross Bu</th>' +
-      '<th style="text-align:right">Moisture %</th>' +
-      '<th style="text-align:right">Net Bu</th>' +
-      '<th style="text-align:right">Shrink</th>' +
-      '<th>Contract</th>' +
-      '<th style="text-align:right">Settlement</th>' +
-      '<th>Status</th>' +
-      '<th>Actions</th>' +
+      '<th scope="col">Date</th>' +
+      '<th scope="col">Commodity</th>' +
+      '<th scope="col">Buyer</th>' +
+      '<th scope="col">Ticket #</th>' +
+      '<th scope="col" style="text-align:right">Gross Bu</th>' +
+      '<th scope="col" style="text-align:right">Moisture %</th>' +
+      '<th scope="col" style="text-align:right">Net Bu</th>' +
+      '<th scope="col" style="text-align:right">Shrink</th>' +
+      '<th scope="col">Contract</th>' +
+      '<th scope="col" style="text-align:right">Settlement</th>' +
+      '<th scope="col">Status</th>' +
+      '<th scope="col">Actions</th>' +
     '</tr></thead>' +
     '<tbody>';
 
