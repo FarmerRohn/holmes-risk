@@ -80,6 +80,7 @@ function _docRenderTable(docs) {
     '<thead><tr>' +
       '<th>Type</th>' +
       '<th>Filename</th>' +
+      '<th>Source</th>' +
       '<th>Linked Contract</th>' +
       '<th>Parsed Data</th>' +
       '<th>Date</th>' +
@@ -94,9 +95,14 @@ function _docRenderTable(docs) {
     var parsedPreview = _docRenderParsedData(d.parsedData, d.id);
     var dateStr = _docFormatDate(d.createdAt);
 
+    var sourceCell = d.source === 'email'
+      ? '<td><span class="badge badge-info">Email</span><br><small>' + esc(d.emailFrom || '') + '</small></td>'
+      : '<td><span class="badge">Upload</span></td>';
+
     html += '<tr class="doc-row">' +
       '<td>' + typeBadge + '</td>' +
       '<td class="doc-filename">' + esc(d.fileName || 'Unknown') + '</td>' +
+      sourceCell +
       '<td>' + linkedInfo + '</td>' +
       '<td>' + parsedPreview + '</td>' +
       '<td style="white-space:nowrap">' + esc(dateStr) + '</td>' +
@@ -230,7 +236,7 @@ function docOpenUploadModal() {
       '</div>' +
       '<div class="modal-actions">' +
         '<button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>' +
-        '<button type="submit" class="btn btn-primary" id="docUploadBtn">Upload</button>' +
+        '<button type="submit" class="btn btn-primary" id="docUploadBtn">Upload &amp; Parse</button>' +
       '</div>' +
     '</form>';
 
@@ -241,51 +247,50 @@ function docOpenUploadModal() {
 
 function docUpload(e) {
   e.preventDefault();
-
-  var fileInput = document.getElementById('docFile');
+  var file = document.getElementById('docFile').files[0];
   var docType = document.getElementById('docType').value;
   var notes = document.getElementById('docNotes').value.trim();
-  var uploadBtn = document.getElementById('docUploadBtn');
+  if (!file) return showToast('Select a file', 'error');
 
-  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-    showToast('Please select a file', 'error');
-    return;
-  }
+  var btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Parsing...';
 
-  var file = fileInput.files[0];
+  var reader = new FileReader();
+  reader.onload = function () {
+    var base64 = reader.result; // data:...;base64,...
+    var mediaType = file.type || 'application/pdf';
 
-  // Validate file type
-  if (!file.name.toLowerCase().endsWith('.pdf')) {
-    showToast('Only PDF files are accepted', 'error');
-    return;
-  }
-
-  // Build FormData
-  var formData = new FormData();
-  formData.append('file', file);
-  formData.append('docType', docType);
-  if (notes) formData.append('notes', notes);
-
-  // Disable button during upload
-  if (uploadBtn) {
-    uploadBtn.disabled = true;
-    uploadBtn.textContent = 'Uploading...';
-  }
-
-  uploadRiskDocumentDB(formData)
-    .then(function(created) {
-      STATE.documents.push(created);
-      closeModal();
-      renderApp();
-      showToast('Document uploaded', 'success');
-    })
-    .catch(function(err) {
-      showToast('Upload failed: ' + err.message, 'error');
-      if (uploadBtn) {
-        uploadBtn.disabled = false;
-        uploadBtn.textContent = 'Upload';
-      }
-    });
+    parseRiskDocumentDB(base64, mediaType, file.name)
+      .then(function (result) {
+        // Save document with parsed data
+        // JSONB gotcha: must JSON.stringify objects before passing to knex via CRUD
+        var payload = {
+          docType: result.parsed && result.parsed.docType ? result.parsed.docType : docType,
+          fileName: file.name,
+          parsedData: result.parsed ? JSON.stringify(result.parsed) : null,
+          rawText: null,  // raw text populated server-side for email-sourced docs only
+        };
+        return _riskFetch('/risk/documents', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+      })
+      .then(function (doc) {
+        STATE.documents.push(doc);
+        closeModal();
+        renderApp();
+        showToast('Document parsed and saved', 'success');
+      })
+      .catch(function (err) {
+        showToast('Parse failed: ' + err.message, 'error');
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = 'Upload & Parse';
+      });
+  };
+  reader.readAsDataURL(file);
 }
 
 // ---- Delete Handler ----

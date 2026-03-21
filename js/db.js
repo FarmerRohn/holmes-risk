@@ -109,14 +109,10 @@ function fetchRiskDocumentsDB() {
   return _riskFetch('/risk/documents');
 }
 
-function uploadRiskDocumentDB(formData) {
-  return fetch(CONFIG.API_BASE + '/risk/documents', {
+function parseRiskDocumentDB(data, mediaType, fileName) {
+  return _riskFetch('/risk/documents/parse', {
     method: 'POST',
-    credentials: 'include',
-    body: formData  // FormData, no JSON content-type
-  }).then(function(res) {
-    if (!res.ok) throw new Error('Upload failed: ' + res.status);
-    return res.json();
+    body: JSON.stringify({ data: data, mediaType: mediaType, fileName: fileName }),
   });
 }
 

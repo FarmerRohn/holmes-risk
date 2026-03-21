@@ -145,7 +145,7 @@ async function build() {
         // DB functions — deliveries
         'fetchRiskDeliveriesDB', 'createRiskDeliveryDB', 'updateRiskDeliveryDB', 'deleteRiskDeliveryDB',
         // DB functions — documents
-        'fetchRiskDocumentsDB', 'uploadRiskDocumentDB', 'deleteRiskDocumentDB',
+        'fetchRiskDocumentsDB', 'parseRiskDocumentDB', 'deleteRiskDocumentDB',
         // DB functions — crop inventory
         'fetchCropInventoryDB', 'createCropInventoryDB', 'updateCropInventoryDB', 'deleteCropInventoryDB',
         // DB functions — bin inventory
