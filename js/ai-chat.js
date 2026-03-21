@@ -63,6 +63,7 @@
     var fab = document.createElement('button');
     fab.className = 'ai-fab';
     fab.setAttribute('title', 'Holmes AI');
+    fab.setAttribute('aria-label', 'Holmes AI');
     fab.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="ai-unread" id="aiUnread"></span>';
     fab.onclick = function() { AI.toggle(); };
     document.body.appendChild(fab);
@@ -73,8 +74,8 @@
     panel.innerHTML =
       '<div class="ai-header">' +
         '<span class="ai-header-title">Holmes AI</span>' +
-        '<button class="ai-header-btn" onclick="AI_CHAT.showHistory()" title="History">&#128218;</button>' +
-        '<button class="ai-header-btn" onclick="AI_CHAT.close()" title="Close">&times;</button>' +
+        '<button class="ai-header-btn" onclick="AI_CHAT.showHistory()" title="History" aria-label="History">&#128218;</button>' +
+        '<button class="ai-header-btn" onclick="AI_CHAT.close()" title="Close" aria-label="Close">&times;</button>' +
       '</div>' +
       '<div class="ai-messages" id="aiMessages"></div>' +
       '<div class="ai-input-row">' +
@@ -88,7 +89,7 @@
       '<div class="ai-history-panel" id="aiHistoryPanel">' +
         '<div class="ai-header">' +
           '<span class="ai-header-title">Team Query History</span>' +
-          '<button class="ai-header-btn" onclick="AI_CHAT.hideHistory()">&larr; Back</button>' +
+          '<button class="ai-header-btn" onclick="AI_CHAT.hideHistory()" aria-label="Back to chat">&larr; Back</button>' +
         '</div>' +
         '<div style="padding:8px"><input class="ai-input" id="aiHistorySearch" placeholder="Search queries..." oninput="AI_CHAT.searchHistory(this.value)" style="width:100%;box-sizing:border-box"></div>' +
         '<div class="ai-history-list" id="aiHistoryList"></div>' +

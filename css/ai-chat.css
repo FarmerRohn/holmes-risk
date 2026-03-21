@@ -1,7 +1,7 @@
 /* ── AI Chat Widget ──────────────────────────────────────────── */
 .ai-fab {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   right: 24px;
   width: 56px;
   height: 56px;
@@ -34,7 +34,7 @@
 
 .ai-panel {
   position: fixed;
-  bottom: 88px;
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   right: 24px;
   width: 400px;
   max-height: calc(100vh - 120px);
@@ -215,7 +215,7 @@
 
 /* Responsive */
 @media (max-width: 500px) {
-  .ai-panel { right: 8px; left: 8px; width: auto; bottom: 56px; }
-  .ai-fab { bottom: 12px; left: 12px; right: auto; width: 40px; height: 40px; font-size: 18px; opacity: 0.85; }
+  .ai-panel { right: 8px; left: 8px; width: auto; bottom: calc(56px + env(safe-area-inset-bottom, 0px)); }
+  .ai-fab { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); left: 12px; right: auto; width: 40px; height: 40px; font-size: 18px; opacity: 0.85; }
   .ai-fab:hover { opacity: 1; }
 }

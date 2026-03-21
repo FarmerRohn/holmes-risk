@@ -73,6 +73,7 @@ body {
   min-height: 100dvh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 input, select, button, textarea {
@@ -376,7 +377,7 @@ input, select, button, textarea {
 /* ==================== TOAST ==================== */
 .toast {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%) translateY(20px);
   padding: 12px 24px;
