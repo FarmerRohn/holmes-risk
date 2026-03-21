@@ -91,17 +91,17 @@ function showLockPanel(panel) {
   pw.style.display = 'none';
 
   if (panel === 'setup') {
-    setup.style.display = '';
+    setup.style.display = 'block';
   } else if (panel === 'pin') {
     _lockPinBuffer = '';
     _lockUpdateDots();
     document.getElementById('lockPinError').textContent = '';
-    pin.style.display = '';
+    pin.style.display = 'block';
   } else if (panel === 'password') {
     var input = document.getElementById('lockPasswordInput');
     if (input) input.value = '';
     document.getElementById('lockPasswordError').textContent = '';
-    pw.style.display = '';
+    pw.style.display = 'block';
     if (input) input.focus();
   }
 }
