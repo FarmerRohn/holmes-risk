@@ -129,12 +129,9 @@ function renderHeader() {
 // ---- Tab Navigation ----
 
 var TAB_CONFIG = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'inventory', label: 'Inventory' },
   { id: 'marketing', label: 'Marketing' },
-  { id: 'pricelog', label: 'Price Log' },
+  { id: 'charts', label: 'Charts' },
   { id: 'pnl', label: 'P&L' },
-  { id: 'documents', label: 'Documents' },
   { id: 'settings', label: 'Settings' }
 ];
 

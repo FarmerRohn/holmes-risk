@@ -71,7 +71,17 @@ function renderApp() {
     return;
   }
 
-  el.innerHTML = renderHeader() + renderTabNav() + renderPage();
+  var tab = STATE.activeTab;
+  var hasSidebar = (tab === 'marketing' || tab === 'charts');
+  var pageContent = renderPage();
+
+  if (hasSidebar) {
+    el.innerHTML = renderHeader() + renderTabNav() +
+      '<div class="risk-layout">' + renderSidebar() +
+      '<div class="risk-workspace">' + pageContent + '</div></div>';
+  } else {
+    el.innerHTML = renderHeader() + renderTabNav() + pageContent;
+  }
 }
 
 function navigate(tab) {

@@ -26,7 +26,6 @@ const JS_FILES = [
   'js/production.js',
   'js/sidebar.js',
   'js/charts.js',
-  'js/pages/dashboard.js',
   'js/pages/grain.js',
   'js/pages/positions.js',
   'js/pages/deliveries.js',
@@ -167,7 +166,7 @@ async function build() {
         'fetchForwardCurveDB', 'fetchBasisDB', 'fetchBasisHistoryDB',
         'fetchIvAnalyticsDB', 'fetchSpreadsDB', 'fetchOptionsChainDB', 'fetchSignalsDB',
         // Page renderers
-        'renderDashboardPage', 'renderGrainPage', 'renderMarketingPage',
+        'renderDashboardPage', 'renderGrainPage', 'renderMarketingPage', 'renderChartsPage',
         'renderPositionsPage',
         'renderDeliveriesPage', 'renderBasisPage', 'renderInputsPage',
         'renderInventoryPage', 'renderMarketPage', 'renderDocumentsPage',

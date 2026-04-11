@@ -28,7 +28,7 @@ var STATE = {
   harvestSummary: [],
   buyers: [],
   // UI state
-  activeTab: 'dashboard',
+  activeTab: 'marketing',
   activeCropYear: null, // from settings
   // Data loaded flags
   _dataLoaded: false
