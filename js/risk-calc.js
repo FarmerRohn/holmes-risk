@@ -251,7 +251,7 @@ function _calcCommodityExposure(commodity, contracts, positions, settings, cropY
   }
   var optionsDeltaBu = calcNetDelta(commPositions);
 
-  var grossBushels = _getGrossBushels(commodity, cropYear, settings);
+  var grossBushels = productionBase(commodity, cropYear);
   var committed = pricedOpen + basisOpen + soldDelivered;
   var hedgePct = grossBushels > 0
     ? (committed + optionsDeltaBu) / grossBushels * 100
