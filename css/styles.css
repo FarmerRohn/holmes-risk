@@ -2336,3 +2336,110 @@ textarea.form-input {
 
 /* ---- Panel visibility ---- */
 .lock-panel { display: none; }
+
+/* ==================== SELL THE CURVE ==================== */
+.stc-panels { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.stc-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; }
+.stc-panel-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+.stc-commodity-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-bottom: 4px; transition: background 0.15s; border: 1px solid transparent; }
+.stc-commodity-row:hover { background: var(--surface2); }
+.stc-commodity-row.stc-selected { background: var(--surface2); border-color: var(--green); }
+.stc-above-be { color: var(--green); }
+.stc-below-be { color: var(--red); }
+.stc-best-row { background: rgba(22, 163, 74, 0.08); }
+[data-theme="dark"] .stc-best-row { background: rgba(64, 145, 108, 0.12); }
+.stc-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (min-width: 768px) {
+  .stc-panels { grid-template-columns: 1fr 1fr; }
+  .stc-form-panel { grid-column: 1 / -1; }
+  .stc-form-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ==================== CHARTS PAGE ==================== */
+
+.chart-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.chart-btn-group { display: flex; gap: 2px; }
+.chart-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text3);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chart-btn:hover { color: var(--text); background: var(--surface3); }
+.chart-btn-active { background: var(--green); color: #fff; border-color: var(--green); }
+.chart-btn-active:hover { background: var(--green); color: #fff; }
+.chart-btn-sm { padding: 4px 8px; }
+
+.chart-layout {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.chart-container {
+  flex: 7;
+  min-height: 450px;
+  background: var(--surface);
+  position: relative;
+}
+
+.chart-info-panel {
+  flex: 3;
+  min-width: 200px;
+  max-width: 260px;
+  padding: 16px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.chart-info-header { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+.chart-info-price { font-size: 24px; font-weight: 700; margin-bottom: 12px; font-family: var(--mono); }
+.chart-info-divider { border-top: 1px solid var(--border); margin: 12px 0; }
+.chart-info-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.chart-info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: var(--text2);
+}
+
+.chart-empty-msg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text3);
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Price change colors */
+.price-up { color: #22c55e; }
+.price-down { color: #ef4444; }
+
+/* Hedge level colors */
+.hedge-good { color: #22c55e; font-weight: 600; }
+.hedge-mid { color: var(--amber); font-weight: 600; }
+.hedge-low { color: #ef4444; font-weight: 600; }
+
+@media (max-width: 768px) {
+  .chart-layout { flex-direction: column; }
+  .chart-info-panel { max-width: 100%; border-left: none; border-top: 1px solid var(--border); }
+  .chart-container { min-height: 320px; }
+}

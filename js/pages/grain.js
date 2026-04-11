@@ -53,7 +53,7 @@ function renderMarketingPage() {
     case 'positions':  return '<div class="page-content">' + subTabBar + _posRenderContent() + '</div>';
     case 'deliveries': return '<div class="page-content">' + subTabBar + _deliveryRenderContent() + '</div>';
     case 'basis':      return '<div class="page-content">' + subTabBar + _basisRenderContent() + '</div>';
-    case 'sell':       return '<div class="page-content">' + subTabBar + _renderSellTheCurvePlaceholder() + '</div>';
+    case 'sell':       return '<div class="page-content">' + subTabBar + renderSellTheCurve() + '</div>';
     default:           return _grainRenderContractsView(subTabBar);
   }
 }
@@ -1542,12 +1542,3 @@ function _grainSplitSave(contractId, totalBu) {
     });
 }
 
-// ---- Sell the Curve placeholder ----
-
-function _renderSellTheCurvePlaceholder() {
-  return '<div class="page-placeholder">' +
-    '<h2>Sell the Curve</h2>' +
-    '<p>Compare elevators, check breakeven, and create contracts in one flow.</p>' +
-    '<p style="color:var(--text3);margin-top:8px;">Coming in Phase 4</p>' +
-  '</div>';
-}

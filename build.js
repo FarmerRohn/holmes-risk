@@ -30,6 +30,7 @@ const JS_FILES = [
   'js/pages/positions.js',
   'js/pages/deliveries.js',
   'js/pages/basis.js',
+  'js/pages/sell-the-curve.js',
   'js/pages/inputs.js',
   'js/pages/inventory.js',
   'js/pages/market.js',
@@ -212,6 +213,8 @@ async function build() {
         'inventorySwitchTab', 'inventoryCalcExpected',
         // Basis page functions
         'basisSelectCommodity', 'basisRefresh',
+        // Sell the Curve functions
+        'renderSellTheCurve', 'stcSelectCommodity', 'stcCreateContract',
         // Inputs (fert) page functions
         'fertOpenModal', 'fertSave', 'fertDelete', 'fertApplyFilter',
         'FERT_PRODUCTS', 'FERT_POSITION_TYPES', 'FERT_STATUSES'
