@@ -17,7 +17,7 @@ var _grainContractHedges = {};
 // Cache for contract rolls (keyed by contractId)
 var _grainContractRolls = {};
 
-// Sub-tab state: 'contracts', 'positions', 'deliveries', 'basis', 'inputs', 'market'
+// Sub-tab state: 'contracts', 'positions', 'deliveries', 'basis', 'sell'
 var _grainSubTab = 'contracts';
 
 // ---- Sub-tab bar ----
@@ -28,8 +28,7 @@ function _grainRenderSubTabBar() {
     { id: 'positions',  label: 'Positions' },
     { id: 'deliveries', label: 'Deliveries' },
     { id: 'basis',      label: 'Basis' },
-    { id: 'inputs',     label: 'Inputs' },
-    { id: 'market',     label: 'Market' }
+    { id: 'sell',       label: 'Sell the Curve' }
   ];
   var html = '<div class="grain-subtab-bar">';
   for (var i = 0; i < tabs.length; i++) {
@@ -54,8 +53,7 @@ function renderMarketingPage() {
     case 'positions':  return '<div class="page-content">' + subTabBar + _posRenderContent() + '</div>';
     case 'deliveries': return '<div class="page-content">' + subTabBar + _deliveryRenderContent() + '</div>';
     case 'basis':      return '<div class="page-content">' + subTabBar + _basisRenderContent() + '</div>';
-    case 'inputs':     return '<div class="page-content">' + subTabBar + _fertRenderContentForSubTab() + '</div>';
-    case 'market':     return '<div class="page-content">' + subTabBar + _marketRenderContentForSubTab() + '</div>';
+    case 'sell':       return '<div class="page-content">' + subTabBar + _renderSellTheCurvePlaceholder() + '</div>';
     default:           return _grainRenderContractsView(subTabBar);
   }
 }
@@ -1542,4 +1540,14 @@ function _grainSplitSave(contractId, totalBu) {
       hideLoading();
       showToast('Failed to split contract: ' + err.message, 'error');
     });
+}
+
+// ---- Sell the Curve placeholder ----
+
+function _renderSellTheCurvePlaceholder() {
+  return '<div class="page-placeholder">' +
+    '<h2>Sell the Curve</h2>' +
+    '<p>Compare elevators, check breakeven, and create contracts in one flow.</p>' +
+    '<p style="color:var(--text3);margin-top:8px;">Coming in Phase 4</p>' +
+  '</div>';
 }
