@@ -190,9 +190,10 @@ function upsertRiskSettingDB(key, value) {
 // ---- Price Log ----
 
 function fetchPriceLogDB(commodity, limit) {
-  var qs = '?';
-  if (commodity) qs += 'commodity=' + encodeURIComponent(commodity) + '&';
-  if (limit) qs += 'limit=' + limit;
+  var params = [];
+  if (commodity) params.push('commodity=' + encodeURIComponent(commodity));
+  if (limit) params.push('limit=' + limit);
+  var qs = params.length ? '?' + params.join('&') : '';
   return _riskFetch('/risk/price-log' + qs);
 }
 
@@ -232,4 +233,86 @@ function fetchOptionsChainDB(commodity) {
 
 function fetchSignalsDB(commodity) {
   return _riskFetch('/market/signals/' + encodeURIComponent(commodity));
+}
+
+/* ── Budget ─────────────────────────────────── */
+function fetchBudgetDB(season) {
+  var qs = season ? '?season=' + season : '';
+  return _riskFetch('/risk/budget' + qs);
+}
+function createBudgetDB(data) {
+  return _riskFetch('/risk/budget', { method: 'POST', body: JSON.stringify(data) });
+}
+function updateBudgetDB(id, data) {
+  return _riskFetch('/risk/budget/' + id, { method: 'PATCH', body: JSON.stringify(data) });
+}
+function deleteBudgetDB(id) {
+  return _riskFetch('/risk/budget/' + id, { method: 'DELETE' });
+}
+
+/* ── Expenses ───────────────────────────────── */
+function fetchExpensesDB(season) {
+  var qs = season ? '?season=' + season : '';
+  return _riskFetch('/risk/expenses' + qs);
+}
+function createExpenseDB(data) {
+  return _riskFetch('/risk/expenses', { method: 'POST', body: JSON.stringify(data) });
+}
+function updateExpenseDB(id, data) {
+  return _riskFetch('/risk/expenses/' + id, { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+/* ── Price Targets ──────────────────────────── */
+function fetchPriceTargetsDB(cropYear) {
+  var qs = cropYear ? '?cropYear=' + cropYear : '';
+  return _riskFetch('/risk/price-targets' + qs);
+}
+function createPriceTargetDB(data) {
+  return _riskFetch('/risk/price-targets', { method: 'POST', body: JSON.stringify(data) });
+}
+function updatePriceTargetDB(id, data) {
+  return _riskFetch('/risk/price-targets/' + id, { method: 'PATCH', body: JSON.stringify(data) });
+}
+function deletePriceTargetDB(id) {
+  return _riskFetch('/risk/price-targets/' + id, { method: 'DELETE' });
+}
+
+/* ── Other Income ───────────────────────────── */
+function fetchOtherIncomeDB(season) {
+  var qs = season ? '?season=' + season : '';
+  return _riskFetch('/risk/other-income' + qs);
+}
+function createOtherIncomeDB(data) {
+  return _riskFetch('/risk/other-income', { method: 'POST', body: JSON.stringify(data) });
+}
+function updateOtherIncomeDB(id, data) {
+  return _riskFetch('/risk/other-income/' + id, { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+/* ── Freight Rates ──────────────────────────── */
+function fetchFreightRatesDB() {
+  return _riskFetch('/risk/freight-rates');
+}
+function createFreightRateDB(data) {
+  return _riskFetch('/risk/freight-rates', { method: 'POST', body: JSON.stringify(data) });
+}
+function updateFreightRateDB(id, data) {
+  return _riskFetch('/risk/freight-rates/' + id, { method: 'PATCH', body: JSON.stringify(data) });
+}
+function deleteFreightRateDB(id) {
+  return _riskFetch('/risk/freight-rates/' + id, { method: 'DELETE' });
+}
+
+/* ── Aggregation (read-only from portal tables) */
+function fetchProductionBaseDB(season) {
+  return _riskFetch('/risk-aggregate/production-base?season=' + (season || SEASON.current));
+}
+function fetchCostSummaryDB(season) {
+  return _riskFetch('/risk-aggregate/cost-summary?season=' + (season || SEASON.current));
+}
+function fetchHarvestSummaryDB(season) {
+  return _riskFetch('/risk-aggregate/harvest-summary?season=' + (season || SEASON.current));
+}
+function fetchBuyersDB() {
+  return _riskFetch('/risk-aggregate/buyers');
 }
