@@ -606,10 +606,12 @@ function posCalcGreeks() {
     return;
   }
 
-  // Need a futures price for F — use current price or entry price
-  var F = currentPrice || entryPrice;
+  // Need the underlying futures price for Black-76 — NOT the option premium
+  var commodityEl = document.getElementById('posCommodity');
+  var commodity = commodityEl ? commodityEl.value : '';
+  var F = getLatestFuturesPrice(commodity, STATE.marketPrices);
   if (!F) {
-    showToast('Entry or current price required', 'error');
+    showToast('No market price available for ' + esc(commodity) + ' — cannot calculate Greeks', 'error');
     return;
   }
 
@@ -1371,7 +1373,7 @@ function posConfirmSplit(positionId, totalContracts) {
 
       // Update parent status to Closed
       return updateRiskPositionDB(positionId, {
-        status: 'Closed',
+        status: 'Split',
         closeReason: 'Split into ' + n + ' positions'
       });
     })

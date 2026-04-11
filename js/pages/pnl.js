@@ -3,7 +3,12 @@
 function renderPnlPage() {
   var cropYear = STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
   var contracts = _pnlFilterByCropYear(STATE.contracts || [], cropYear);
-  var positions = _pnlFilterPositionsByCropYear(STATE.positions || [], cropYear);
+  var allPositions = _pnlFilterPositionsByCropYear(STATE.positions || [], cropYear);
+  // Exclude Split-status positions — their value lives in the child positions
+  var positions = [];
+  for (var si = 0; si < allPositions.length; si++) {
+    if (allPositions[si].status !== 'Split') positions.push(allPositions[si]);
+  }
   var settings = STATE.settings || {};
   var marketPrices = STATE.marketPrices || [];
 
@@ -274,7 +279,7 @@ function _pnlRenderPositionDetail(positions) {
 
     rows.push({
       commodity: p.commodity || '',
-      positionType: p.positionType || '',
+      contractType: p.contractType || '',
       positionSide: p.positionSide || '',
       contracts: numContracts,
       entryPrice: entryPrice,
@@ -309,7 +314,7 @@ function _pnlRenderPositionDetail(positions) {
 
     html += '<tr>' +
       '<td><span class="grain-commodity-dot" style="background:' + color + '"></span>' + esc(r.commodity) + '</td>' +
-      '<td>' + esc(r.positionType) + '</td>' +
+      '<td>' + esc(r.contractType) + '</td>' +
       '<td><span class="pos-side ' + sideCls + '">' + esc(r.positionSide) + '</span></td>' +
       '<td style="text-align:right;font-family:var(--mono)">' + r.contracts + '</td>' +
       '<td style="text-align:right;font-family:var(--mono)">' + _grainFmtPrice(r.entryPrice) + '</td>' +
