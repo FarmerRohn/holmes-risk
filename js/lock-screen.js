@@ -362,12 +362,18 @@ async function lockApp() {
     console.error('lockApp POST error:', err);
   }
 
-  // Clear sensitive STATE arrays
+  // Clear sensitive STATE data
   if (typeof STATE !== 'undefined') {
-    var keys = ['contracts', 'positions', 'deliveries', 'hedges', 'basisContracts',
-                'futures', 'inventory', 'buyers', 'settlements'];
-    keys.forEach(function(k) {
-      if (Array.isArray(STATE[k])) STATE[k] = [];
+    var sensitiveKeys = [
+      'contracts', 'positions', 'elevatorHedges', 'deliveries',
+      'documents', 'cropInventory', 'binInventory', 'fertPositions',
+      'priceLog', 'marketPrices', 'budget', 'expenses',
+      'priceTargets', 'otherIncome', 'freightRates',
+      'productionData', 'costSummary', 'harvestSummary', 'buyers'
+    ];
+    sensitiveKeys.forEach(function(key) {
+      if (Array.isArray(STATE[key])) STATE[key] = [];
+      else STATE[key] = null;
     });
   }
 
@@ -411,6 +417,8 @@ function lockResetAutoTimer() {
 // ---------------------------------------------------------------------------
 
 function initLockScreen() {
+  if (document.getElementById('lockOverlay')) return;
+
   // Inject lock screen HTML
   var container = document.createElement('div');
   container.innerHTML = renderLockScreen();
