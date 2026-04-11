@@ -5,6 +5,11 @@ var _marketSelectedCommodity = 'Corn';
 var _marketForwardCurve = null;
 var _marketLoading = false;
 
+// Cache to prevent fetch spam on every render
+var _marketCache = {};
+var _marketCacheTime = 0;
+var MARKET_CACHE_TTL = 60000; // 1 minute
+
 // ---- Main page renderer ----
 
 function renderMarketPage() {
@@ -103,12 +108,23 @@ function _marketRenderTable() {
 // ---- Data Fetching ----
 
 function _marketFetchCurve(commodity) {
+  // Cache guard: skip fetch if data is fresh
+  var now = Date.now();
+  if (_marketCache[commodity] && (now - _marketCacheTime) < MARKET_CACHE_TTL) {
+    _marketForwardCurve = _marketCache[commodity];
+    _marketLoading = false;
+    _marketUpdateContainer();
+    return;
+  }
+
   _marketLoading = true;
   _marketUpdateContainer();
 
   fetchForwardCurveDB(commodity)
     .then(function(data) {
       _marketForwardCurve = (data && data.curves) || [];
+      _marketCache[commodity] = _marketForwardCurve;
+      _marketCacheTime = Date.now();
       _marketLoading = false;
       _marketUpdateContainer();
     })
@@ -149,6 +165,8 @@ function marketSelectCommodity(commodity) {
 
 function marketRefresh() {
   _marketForwardCurve = null;
+  _marketCache = {};
+  _marketCacheTime = 0;
   _marketFetchCurve(_marketSelectedCommodity);
 }
 

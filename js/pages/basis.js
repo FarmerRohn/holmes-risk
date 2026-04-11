@@ -6,6 +6,11 @@ var _basisData = null;        // cached /market/basis response
 var _basisHistoryData = null; // cached /market/basis-history response
 var _basisLoading = false;
 
+// Cache to prevent fetch spam on every render
+var _basisCache = null;
+var _basisCacheTime = 0;
+var BASIS_CACHE_TTL = 60000; // 1 minute
+
 // ---- Main page renderer ----
 
 function _basisRenderContent() {
@@ -227,6 +232,14 @@ function _basisRenderHistorySection() {
 // ---- Data Fetching ----
 
 function _basisFetchAll(commodity) {
+  // Cache guard: skip fetch if data is fresh
+  var now = Date.now();
+  if (_basisCache && (now - _basisCacheTime) < BASIS_CACHE_TTL) {
+    _basisLoading = false;
+    _basisUpdateAll();
+    return;
+  }
+
   _basisLoading = true;
   _basisUpdateAll();
 
@@ -235,6 +248,8 @@ function _basisFetchAll(commodity) {
 
   function checkDone() {
     if (basisDone && historyDone) {
+      _basisCache = { basis: _basisData, history: _basisHistoryData };
+      _basisCacheTime = Date.now();
       _basisLoading = false;
       _basisUpdateAll();
     }
@@ -305,6 +320,8 @@ function basisSelectCommodity(commodity) {
 function basisRefresh() {
   _basisData = null;
   _basisHistoryData = null;
+  _basisCache = null;
+  _basisCacheTime = 0;
   _basisFetchAll(_basisSelectedCommodity);
 }
 

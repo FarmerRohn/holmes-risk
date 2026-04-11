@@ -270,6 +270,7 @@ function docUpload(e) {
           fileName: file.name,
           parsedData: result.parsed ? JSON.stringify(result.parsed) : null,
           rawText: null,  // raw text populated server-side for email-sourced docs only
+          notes: notes || null,
         };
         return _riskFetch('/risk/documents', {
           method: 'POST',
