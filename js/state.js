@@ -17,6 +17,16 @@ var STATE = {
   priceLog: [],
   settings: {},       // risk_settings key-value pairs
   marketPrices: [],
+  // New — redesign state
+  budget: [],
+  expenses: [],
+  priceTargets: [],
+  otherIncome: [],
+  freightRates: [],
+  productionData: [],
+  costSummary: null,
+  harvestSummary: [],
+  buyers: [],
   // UI state
   activeTab: 'dashboard',
   activeCropYear: null, // from settings

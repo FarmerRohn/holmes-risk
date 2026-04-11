@@ -1,16 +1,22 @@
-// ==================== HOLMES RISK — SEASON ====================
-
+/* season.js — dynamic crop year management */
 var SEASON = {
-  _current: '2026',
-  _available: ['2025', '2026'],
-  get current() { return this._current; },
-  get previous() { return String(parseInt(this._current) - 1); },
-  get next() { return String(parseInt(this._current) + 1); },
-  get year() { return parseInt(this._current); },
-  get label() { return this._current + ' Season'; }
+  get current() {
+    return String(new Date().getFullYear());
+  },
+  get previous() {
+    return String(new Date().getFullYear() - 1);
+  },
+  get next() {
+    return String(new Date().getFullYear() + 1);
+  },
+  get year() {
+    return new Date().getFullYear();
+  },
+  get label() {
+    return this.current + ' Season';
+  },
+  get available() {
+    var y = new Date().getFullYear();
+    return [String(y - 1), String(y), String(y + 1), String(y + 2)];
+  }
 };
-
-(function() {
-  var saved = localStorage.getItem('hf_risk_season');
-  if (saved && /^\d{4}$/.test(saved)) SEASON._current = saved;
-})();
