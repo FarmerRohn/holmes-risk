@@ -64,7 +64,7 @@ function _invFilterCrop(items, cropYear) {
 }
 
 function _invRenderCropToolbar(cropYear) {
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var i = 0; i < years.length; i++) {
     var sel = years[i] === cropYear ? ' selected' : '';
@@ -197,7 +197,7 @@ function inventoryOpenCropModal(id) {
   }
 
   // Year options
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var yi = 0; yi < years.length; yi++) {
     var ySel = (item ? String(item.cropYear) === years[yi] : years[yi] === cropYear) ? ' selected' : '';
@@ -350,7 +350,7 @@ function _invFilterBin(items, cropYear) {
 }
 
 function _invRenderStorageToolbar(cropYear) {
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var i = 0; i < years.length; i++) {
     var sel = years[i] === cropYear ? ' selected' : '';
@@ -454,7 +454,7 @@ function inventoryOpenBinModal(id) {
   }
 
   // Year options
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var yi = 0; yi < years.length; yi++) {
     var ySel = (item ? String(item.cropYear) === years[yi] : years[yi] === cropYear) ? ' selected' : '';

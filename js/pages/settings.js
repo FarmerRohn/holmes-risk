@@ -30,7 +30,7 @@ function renderSettingsPage() {
 // ---- Crop Year ----
 
 function _renderCropYearSection(active) {
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var opts = '';
   for (var i = 0; i < years.length; i++) {
     var sel = years[i] === active ? ' selected' : '';

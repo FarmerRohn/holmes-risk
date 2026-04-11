@@ -29,7 +29,7 @@ function renderPnlPage() {
 // ---- Crop year filter ----
 
 function _pnlRenderCropYearFilter(cropYear) {
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var i = 0; i < years.length; i++) {
     var sel = years[i] === cropYear ? ' selected' : '';

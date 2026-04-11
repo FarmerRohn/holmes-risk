@@ -77,7 +77,7 @@ function _grainRenderContractsView(subTabBar) {
 // ---- Toolbar ----
 
 function _grainRenderToolbar(cropYear) {
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var i = 0; i < years.length; i++) {
     var sel = years[i] === cropYear ? ' selected' : '';
@@ -929,7 +929,7 @@ function grainOpenContractModal(id) {
 
   // Crop year options
   var yearOpts = '';
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var defaultYear = c.cropYear ? String(c.cropYear) : (STATE.activeCropYear || SEASON.current);
   for (var yi = 0; yi < years.length; yi++) {
     var ySel = years[yi] === defaultYear ? ' selected' : '';

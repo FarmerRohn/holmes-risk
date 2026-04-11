@@ -24,7 +24,7 @@ function renderDeliveriesPage() {
 // ---- Toolbar ----
 
 function _deliveryRenderToolbar(cropYear) {
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var i = 0; i < years.length; i++) {
     var sel = years[i] === cropYear ? ' selected' : '';
@@ -240,7 +240,7 @@ function deliveryOpenModal(id) {
 
   // Crop year options
   var cropYear = d.cropYear || STATE.activeCropYear || STATE.settings.activeCropYear || SEASON.current;
-  var years = ['2024', '2025', '2026', '2027'];
+  var years = SEASON.available;
   var yearOpts = '';
   for (var yi = 0; yi < years.length; yi++) {
     var ySel = String(cropYear) === years[yi] ? ' selected' : '';

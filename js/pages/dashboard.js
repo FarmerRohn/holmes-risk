@@ -163,12 +163,14 @@ function _renderRecentContracts() {
 
 // ---- Auto-refresh ----
 
+var _dashboardRefreshActive = false;
+
 function _dashboardStartAutoRefresh() {
-  if (_dashboardRefreshTimer) clearInterval(_dashboardRefreshTimer);
+  if (_dashboardRefreshActive) return;
+  _dashboardRefreshActive = true;
   _dashboardRefreshTimer = setInterval(function() {
     if (STATE.activeTab !== 'dashboard') {
-      clearInterval(_dashboardRefreshTimer);
-      _dashboardRefreshTimer = null;
+      _dashboardStopAutoRefresh();
       return;
     }
     fetchMarketQuotesDB()
@@ -185,6 +187,12 @@ function _dashboardStartAutoRefresh() {
         console.warn('Market refresh failed:', err);
       });
   }, 5 * 60 * 1000);
+}
+
+function _dashboardStopAutoRefresh() {
+  _dashboardRefreshActive = false;
+  clearInterval(_dashboardRefreshTimer);
+  _dashboardRefreshTimer = null;
 }
 
 function dashboardRefreshPrices() {
