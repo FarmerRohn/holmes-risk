@@ -24,6 +24,7 @@ const JS_FILES = [
   'js/greeks.js',
   'js/risk-calc.js',
   'js/production.js',
+  'js/sidebar.js',
   'js/charts.js',
   'js/pages/dashboard.js',
   'js/pages/grain.js',
@@ -117,6 +118,8 @@ async function build() {
         'getLatestFuturesPrice',
         // Production base
         'productionBase', 'productionAcres', 'productionYield',
+        // Sidebar
+        'renderSidebar',
         // UI utilities
         'esc', 'escapeAttr', 'showToast', 'showLoading', 'hideLoading',
         'showModal', 'closeModal', 'toggleTheme',
