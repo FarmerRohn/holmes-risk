@@ -4,6 +4,7 @@ async function connectAndLoad() {
   showLoading();
 
   try {
+    var cy = SEASON.current;
     var results = await Promise.all([
       fetchRiskSettingsDB().catch(function(e) { console.warn('Settings load failed:', e); return []; }),
       fetchRiskContractsDB().catch(function(e) { console.warn('Contracts load failed:', e); return []; }),
@@ -14,7 +15,16 @@ async function connectAndLoad() {
       fetchBinInventoryDB().catch(function(e) { console.warn('Bin inventory load failed:', e); return []; }),
       fetchFertPositionsDB().catch(function(e) { console.warn('Fert positions load failed:', e); return []; }),
       fetchMarketQuotesDB().catch(function(e) { console.warn('Market quotes load failed:', e); return []; }),
-      fetchPriceLogDB(null, 50).catch(function(e) { console.warn('Price log load failed:', e); return []; })
+      fetchPriceLogDB(null, 50).catch(function(e) { console.warn('Price log load failed:', e); return []; }),
+      fetchBudgetDB(cy).catch(function(e) { console.warn('Budget load failed:', e); return []; }),
+      fetchExpensesDB(cy).catch(function(e) { console.warn('Expenses load failed:', e); return []; }),
+      fetchPriceTargetsDB(cy).catch(function(e) { console.warn('Price targets load failed:', e); return []; }),
+      fetchOtherIncomeDB(cy).catch(function(e) { console.warn('Other income load failed:', e); return []; }),
+      fetchFreightRatesDB().catch(function(e) { console.warn('Freight rates load failed:', e); return []; }),
+      fetchProductionBaseDB(cy).catch(function(e) { console.warn('Production base load failed:', e); return []; }),
+      fetchCostSummaryDB(cy).catch(function(e) { console.warn('Cost summary load failed:', e); return null; }),
+      fetchHarvestSummaryDB(cy).catch(function(e) { console.warn('Harvest summary load failed:', e); return []; }),
+      fetchBuyersDB().catch(function(e) { console.warn('Buyers load failed:', e); return []; })
     ]);
 
     // Unpack settings into key-value map
@@ -31,6 +41,15 @@ async function connectAndLoad() {
     STATE.fertPositions = results[7] || [];
     STATE.marketPrices = results[8] || [];
     STATE.priceLog = results[9] || [];
+    STATE.budget = results[10] || [];
+    STATE.expenses = results[11] || [];
+    STATE.priceTargets = results[12] || [];
+    STATE.otherIncome = results[13] || [];
+    STATE.freightRates = results[14] || [];
+    STATE.productionData = results[15] || [];
+    STATE.costSummary = results[16] || null;
+    STATE.harvestSummary = results[17] || [];
+    STATE.buyers = results[18] || [];
     // Elevator hedges loaded per-contract on demand (nested API route)
 
     STATE._dataLoaded = true;
