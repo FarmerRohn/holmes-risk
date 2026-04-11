@@ -23,6 +23,7 @@ const JS_FILES = [
   'js/ui.js',
   'js/greeks.js',
   'js/risk-calc.js',
+  'js/production.js',
   'js/charts.js',
   'js/pages/dashboard.js',
   'js/pages/grain.js',
@@ -114,6 +115,8 @@ async function build() {
         // Risk calculations
         'calcEffectivePrice', 'calcPL', 'calcExposure', 'calcNetDelta',
         'getLatestFuturesPrice',
+        // Production base
+        'productionBase', 'productionAcres', 'productionYield',
         // UI utilities
         'esc', 'escapeAttr', 'showToast', 'showLoading', 'hideLoading',
         'showModal', 'closeModal', 'toggleTheme',
