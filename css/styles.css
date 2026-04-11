@@ -2418,6 +2418,9 @@ textarea.form-input {
   color: var(--text2);
 }
 
+.chart-info-price .price-up,
+.chart-info-price .price-down { font-size: 14px; }
+
 .chart-empty-msg {
   position: absolute;
   top: 50%;
@@ -2428,15 +2431,6 @@ textarea.form-input {
   text-align: center;
   pointer-events: none;
 }
-
-/* Price change colors */
-.price-up { color: #22c55e; }
-.price-down { color: #ef4444; }
-
-/* Hedge level colors */
-.hedge-good { color: #22c55e; font-weight: 600; }
-.hedge-mid { color: var(--amber); font-weight: 600; }
-.hedge-low { color: #ef4444; font-weight: 600; }
 
 @media (max-width: 768px) {
   .chart-layout { flex-direction: column; }
