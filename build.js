@@ -230,7 +230,7 @@ async function build() {
     process.exit(1);
   }
 
-  const minified = '/*! Holmes Farms Platform — Copyright (c) 2025-2026 Adam Rohn & Corey Holmes. All rights reserved. Proprietary and confidential. */\n' + result.code;
+  const minified = '/*! Holmes Farms Platform — Copyright (c) 2025-2026 Adam Rohn. All rights reserved. Proprietary and confidential. */\n' + result.code;
   console.log('  Minified: ' + (minified.length / 1024).toFixed(1) + ' KB');
   console.log('  Reduction: ' + ((1 - minified.length / totalOrigSize) * 100).toFixed(0) + '%\n');
 

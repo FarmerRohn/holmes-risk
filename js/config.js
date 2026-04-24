@@ -3,7 +3,6 @@
 var CONFIG = {
   GOOGLE_CLIENT_ID: '858171614448-cft82bknt4s11ur0t8p40tl5pp8vmjt0.apps.googleusercontent.com',
   ADMIN_EMAIL: 'adamrohn@holmesfarmsgp.com',
-  OWNER_EMAIL: 'corey@holmesfarmsgp.com',
   AUTO_ADD_DOMAIN: 'holmesfarmsgp.com',
   API_BASE: '/api'
 };

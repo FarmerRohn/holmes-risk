@@ -57,7 +57,7 @@ async function handleAuthResponse(response) {
     STATE.userEmail = user.email;
     STATE.user = { email: user.email, name: user.operatorName || '', picture: '' };
     STATE.role = user.role || 'employee';
-    STATE.isManager = STATE.role === 'manager' || STATE.role === 'admin' || STATE.role === 'owner';
+    STATE.isManager = STATE.role === 'manager' || STATE.role === 'admin';
 
     // Check encryption status before loading data
     await _authCheckEncryption();
@@ -83,7 +83,7 @@ async function tryRestoreSession() {
     STATE.userEmail = user.email;
     STATE.user = { email: user.email, name: user.operatorName || '', picture: '' };
     STATE.role = user.role || 'employee';
-    STATE.isManager = STATE.role === 'manager' || STATE.role === 'admin' || STATE.role === 'owner';
+    STATE.isManager = STATE.role === 'manager' || STATE.role === 'admin';
 
     // Check encryption status before loading data
     await _authCheckEncryption();
