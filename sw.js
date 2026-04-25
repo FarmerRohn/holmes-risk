@@ -34,6 +34,10 @@ self.addEventListener('fetch', function(event) {
   // Skip non-GET requests (POST mutations, etc.)
   if (event.request.method !== 'GET') return;
 
+  // Skip non-http(s) schemes — Cache API rejects chrome-extension://,
+  // moz-extension://, data:, blob:, file:, etc. with TypeError.
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
   // Skip API calls — never cache dynamic data
   if (url.pathname.startsWith('/api/')) return;
 
